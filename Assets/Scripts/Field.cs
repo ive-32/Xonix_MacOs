@@ -5,29 +5,65 @@ using UnityEngine.Serialization;
 public class Field : MonoBehaviour
 {
     [FormerlySerializedAs("TilesList")] public List<GameObject> tilesList = new List<GameObject>();
-    
-    private GameObject _borderTile; 
-    
-    void Start()
-    {
-        _borderTile = tilesList[0];
 
+    private class FieldTile
+    {
+        public TileType TileType = TileType.Empty;
+        public GameObject GameObject;
+    };
+
+    private readonly FieldTile[,] _field = new FieldTile[IcwGame.SizeX, IcwGame.SizeY];
+
+    public void Awake()
+    {
+        for (var i = 0; i < IcwGame.SizeX; i++)
+            for (var j = 0; j < IcwGame.SizeY; j++)
+                _field[i, j] = new FieldTile();
+    }
+
+    public void Start()
+    {
+        BuildField();
+    }
+
+    public void BuildField()
+    {
         for (var i = 0; i < IcwGame.SizeX; i++)
         {
-            Instantiate(_borderTile, new Vector3(i, 0, 0), Quaternion.identity, this.transform);
-            Instantiate(_borderTile, new Vector3(i, 1, 0), Quaternion.identity, this.transform);
-            Instantiate(_borderTile, new Vector3(i, IcwGame.SizeY - 2, 0), Quaternion.identity, this.transform);
-            Instantiate(_borderTile, new Vector3(i, IcwGame.SizeY - 1, 0), Quaternion.identity, this.transform);
+            PutTile(TileType.Border, i, 0);
+            PutTile(TileType.Border, i, 1);
+            PutTile(TileType.Border, i, IcwGame.SizeY - 2);
+            PutTile(TileType.Border, i, IcwGame.SizeY - 1);
         }
 
         for (var j = 2; j < IcwGame.SizeY - 2; j++)
         {
-            Instantiate(_borderTile, new Vector3(0, j, 0), Quaternion.identity, this.transform);
-            Instantiate(_borderTile, new Vector3(1, j, 0), Quaternion.identity, this.transform);
-            Instantiate(_borderTile, new Vector3(IcwGame.SizeX - 2, j, 0), Quaternion.identity, this.transform);
-            Instantiate(_borderTile, new Vector3(IcwGame.SizeX - 1, j, 0), Quaternion.identity, this.transform);
+            PutTile(TileType.Border, 0, j);
+            PutTile(TileType.Border, 1, j);
+            PutTile(TileType.Border, IcwGame.SizeX - 2, j);
+            PutTile(TileType.Border, IcwGame.SizeX - 1, j);
         }
     }
-
     
+    public void PutTile(TileType tileType, int x, int y)
+    {
+        var tile = GetTileByType(tileType);
+        
+        if (_field[x, y].GameObject != null)
+            Destroy(_field[x, y].GameObject);
+        
+        if (tile != null)
+            _field[x, y].GameObject = Instantiate(tile, new Vector3(x, y, 0), Quaternion.identity, transform);
+
+        _field[x, y].TileType = tileType;
+    }
+
+    private GameObject GetTileByType(TileType tileType)
+        => tileType switch
+        {
+            TileType.Border => tilesList[0],
+            TileType.Filled => tilesList[1],
+            TileType.Trace => tilesList[2],
+            _ => null
+        };
 }
