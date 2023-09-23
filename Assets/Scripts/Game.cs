@@ -1,10 +1,12 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Game : MonoBehaviour
 {
-    public GameObject player;
-    public GameObject field;
-    
+    [FormerlySerializedAs("player")] public GameObject playerPrefab;
+    [FormerlySerializedAs("field")] public GameObject fieldPrefab;
+    //[FormerlySerializedAs("enemies")] public List<GameObject> enemiesPrefabs;
+
     void Start()
     {
         StartGame();
@@ -12,7 +14,9 @@ public class Game : MonoBehaviour
 
     private void StartGame()
     {
-        Instantiate(player, transform);
-        Instantiate(field, transform);
+        var fieldObject = Instantiate(fieldPrefab, transform);
+        var playerObject = Instantiate(playerPrefab, transform);
+
+        playerObject.GetComponent<Player>()._field = fieldObject.GetComponent<Field>();
     }
 }

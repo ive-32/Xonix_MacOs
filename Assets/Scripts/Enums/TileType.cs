@@ -1,7 +1,7 @@
 public enum TileType
 {
     Empty = 0,
-    Border = 1,
-    Filled = 2,
+    [Ground(true)] Border = 1,
+    [Ground(true)] Filled = 2,
     Trace = 3
 }
