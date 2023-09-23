@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -5,7 +6,8 @@ using UnityEngine.Serialization;
 public class Field : MonoBehaviour
 {
     [FormerlySerializedAs("TilesList")] public List<GameObject> tilesList = new List<GameObject>();
-
+    [NonSerialized] public Enemies Enemies;
+    
     private class FieldTile
     {
         public TileType TileType = TileType.Empty;
@@ -108,6 +110,41 @@ public class Field : MonoBehaviour
         }
         
         _fillRoutineDeepLevel--;
+    }
+
+    public void FillFieldAfterFlow()
+    {
+        for (var i = 0; i < IcwGame.SizeX; i++)
+            for (var j = 0; j < IcwGame.SizeY; j++)
+            {   
+                if (_field[i * IcwGame.SizeY + j].TileType != TileType.Empty)
+                    _tmpFieldProjection[i, j] = 2;
+                else _tmpFieldProjection[i, j] = 0;
+            }
+        
+        // get area for each enemy 
+        _startFillPoints.Clear();
+        
+        for (var i = 0; i < Enemies.transform.childCount; i++)
+        {
+            var startPos = Vector3Int.RoundToInt(Enemies.transform.GetChild(i).transform.position);
+            _startFillPoints.Add(startPos);
+        }
+        
+        while (_startFillPoints.Count > 0)
+        {
+            var currFillPoint = _startFillPoints[^1];
+            _startFillPoints.RemoveAt(_startFillPoints.Count - 1);
+            FillFromPoint(currFillPoint, 1);
+        }
+        
+        // fills areas where enemy not detected
+        for (var i = 0; i < IcwGame.SizeX; i++)
+        for (var j = 0; j < IcwGame.SizeY; j++)
+        {
+            if (_tmpFieldProjection[i, j] == 0 || GetTile(i ,j) == TileType.Trace)
+                PutTile(TileType.Filled, i, j);
+        }
     }
 
 

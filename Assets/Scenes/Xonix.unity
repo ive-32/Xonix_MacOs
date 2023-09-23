@@ -257,8 +257,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 692d536f8d3974cc2862885d68f3af94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 4857148938817988273, guid: c2b57bc49612f443282594de5e4c1fef, type: 3}
-  field: {fileID: 1571764047625893879, guid: 7b97df033e9d94314a7a8305a5f7aaef, type: 3}
+  playerPrefab: {fileID: 4857148938817988273, guid: c2b57bc49612f443282594de5e4c1fef, type: 3}
+  fieldPrefab: {fileID: 1571764047625893879, guid: 7b97df033e9d94314a7a8305a5f7aaef, type: 3}
+  enemiesPrefab: {fileID: 812307737479586146, guid: 4814a28faa88c41ca9d617b48e94b71c, type: 3}
 --- !u!4 &1886451285
 Transform:
   m_ObjectHideFlags: 0

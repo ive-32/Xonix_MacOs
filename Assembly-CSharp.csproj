@@ -51,6 +51,8 @@
      <Compile Include="Assets/Scripts/Field.cs" />
      <Compile Include="Assets/Scripts/Game.cs" />
      <Compile Include="Assets/Scripts/Player.cs" />
+     <Compile Include="Assets/Scripts/Extensions/Vector3Extensions.cs" />
+     <Compile Include="Assets/Scripts/Enemies/BaseEnemy.cs" />
      <Compile Include="Assets/Scripts/Attributes/GroundAttribute.cs" />
      <Compile Include="Assets/Scripts/Enemies.cs" />
      <Compile Include="Assets/Scripts/Enums/TileType.cs" />
@@ -58,6 +60,7 @@
      <Folder Include="Assets/Resources" />
      <Folder Include="Assets/Scripts/Attributes" />
      <Folder Include="Assets/Scripts/Extensions" />
+     <Folder Include="Assets/Scripts/Enemies" />
      <Folder Include="Assets/Scripts" />
      <Folder Include="Assets/Sprites" />
      <Folder Include="Assets/Prefabs" />

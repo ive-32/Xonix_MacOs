@@ -67,6 +67,7 @@ public class Player : MonoBehaviour
         {
             _startFlowPosition = Vector3.zero;
             _direction = Vector2.zero;
+            _field.FillFieldAfterFlow();
         }
         
         // set trace
