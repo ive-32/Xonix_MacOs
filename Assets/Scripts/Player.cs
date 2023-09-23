@@ -79,7 +79,7 @@ public class Player : MonoBehaviour
     {
         var nextTile = GetCenterTile(transform.position);
         
-        return PositionIsValid(nextTile.x + dir.x, nextTile.y + dir.y) ? dir : Vector2.zero;
+        return Field.IsPositionValid(nextTile.x + dir.x, nextTile.y + dir.y) ? dir : Vector2.zero;
     }
     
     private Vector2 GetDirection()
@@ -98,9 +98,6 @@ public class Player : MonoBehaviour
         return direction;
     }
     
-    private static bool PositionIsValid(float x, float y) 
-        => Mathf.Round(x) is >= 0 and < IcwGame.SizeX && Mathf.Round(y) is >= 0 and < IcwGame.SizeY;
-
     private static Vector3 GetCenterTile(Vector3 pos)
         => new (Mathf.Round(pos.x), Mathf.Round(pos.y), 0);
     

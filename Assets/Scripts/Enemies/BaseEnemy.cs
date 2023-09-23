@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -29,18 +30,32 @@ public class BaseEnemy : MonoBehaviour
         var pos = transform.position;
         
         var reflectionNormalVector = Vector3.zero;
-        
-        var tile = Field.GetTile(Mathf.RoundToInt(pos.x + Mathf.Clamp(Direction.x * 100, -0.5f, 0.5f)), 
-            Mathf.RoundToInt(pos.y));
-        
-        if (tile != TileType.Empty) 
-            reflectionNormalVector += new Vector3(Direction.x, 0, 0);
 
-        tile = Field.GetTile(Mathf.RoundToInt(pos.x), 
+        var tilePos = new Vector2Int(
+            Mathf.RoundToInt(pos.x + Mathf.Clamp(Direction.x * 100, -0.5f, 0.5f)),
+            Mathf.RoundToInt(pos.y));
+
+        var tile = Field.GetTile(tilePos);
+
+        if (tile != TileType.Empty)
+        {
+            reflectionNormalVector += new Vector3(Direction.x, 0, 0);
+            if (tile == TileType.Trace)
+                Field.HitTraceTile(tilePos.x, tilePos.y);
+        }
+
+        tilePos = new Vector2Int(
+            Mathf.RoundToInt(pos.x), 
             Mathf.RoundToInt(pos.y + Mathf.Clamp(Direction.y * 100, -0.5f, 0.5f)));
+
+        tile = Field.GetTile(tilePos); 
         
-        if (tile != TileType.Empty) 
+        if (tile != TileType.Empty)
+        {
             reflectionNormalVector += new Vector3(0, Direction.y, 0);
+            if (tile == TileType.Trace)
+                Field.HitTraceTile(tilePos.x, tilePos.y);
+        }   
         
         if (reflectionNormalVector.magnitude > 0)
             Direction = Vector3.Reflect(Direction, reflectionNormalVector.normalized).normalized;

@@ -68,6 +68,14 @@ public class Field : MonoBehaviour
         _field[x * IcwGame.SizeY + y].TileType = tileType;
     }
 
+    public static bool IsPositionValid(float x, float y)
+        => IsPositionValid(Mathf.RoundToInt(x), Mathf.RoundToInt(y)); 
+    
+    public static bool IsPositionValid(int x, int y)
+        => x is >= 0 and < IcwGame.SizeX && y is >= 0 and < IcwGame.SizeY;
+    public static bool IsPositionValid(Vector2Int pos)
+        => IsPositionValid(pos.x, pos.y);
+
     private GameObject GetTileByType(TileType tileType)
         => tileType switch
         {
@@ -146,8 +154,11 @@ public class Field : MonoBehaviour
                 PutTile(TileType.Filled, i, j);
         }
     }
-
-
-    #endregion
     
+    #endregion
+
+    public void HitTraceTile(int x, int y)
+    {
+        _field[x * IcwGame.SizeY + y].GameObject.GetComponent<TraceTile>().HitByEnemy(this); 
+    }
 }
