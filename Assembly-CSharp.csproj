@@ -49,7 +49,7 @@
      <Compile Include="Assets/Scripts/MainCamera.cs" />
      <Compile Include="Assets/Scripts/Extensions/AttributeExtensions.cs" />
      <Compile Include="Assets/Scripts/Field.cs" />
-     <Compile Include="Assets/Scripts/TraceTile.cs" />
+     <Compile Include="Assets/Scripts/Tiles/TraceTile.cs" />
      <Compile Include="Assets/Scripts/Game.cs" />
      <Compile Include="Assets/Scripts/Player.cs" />
      <Compile Include="Assets/Scripts/Extensions/Vector3Extensions.cs" />
@@ -63,6 +63,8 @@
      <Folder Include="Assets/Scripts/Extensions" />
      <Folder Include="Assets/Scripts/Enemies" />
      <Folder Include="Assets/Scripts" />
+     <Folder Include="Assets/Scripts/Tiles" />
+     <Folder Include="Assets/Animations" />
      <Folder Include="Assets/Sprites" />
      <Folder Include="Assets/Prefabs" />
      <Folder Include="Assets/Scenes" />

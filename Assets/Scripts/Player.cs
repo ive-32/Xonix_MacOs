@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -19,17 +18,17 @@ public class Player : MonoBehaviour
     public float playerSpeed = 2.0f;
     [NonSerialized] public Field _field;
 
-    private AnimationClip playerAppear;
-    private AnimationClip playerDisappear;
-    private Animation playerAnimation;
+    private AnimationClip _playerAppear;
+    private AnimationClip _playerDisappear;
+    private Animation _playerAnimation;
     
     private void Awake()
     {
         transform.SetPositionAndRotation(_startPosition, Quaternion.identity);
 
-        playerAppear = GetComponent<Animation>().GetClip("PlayerAppear");
-        playerDisappear = GetComponent<Animation>().GetClip("PlayerDisappear");
-        playerAnimation = GetComponent<Animation>();
+        _playerAppear = GetComponent<Animation>().GetClip("PlayerAppear");
+        _playerDisappear = GetComponent<Animation>().GetClip("PlayerDisappear");
+        _playerAnimation = GetComponent<Animation>();
     }
 
     public void Update()
@@ -67,8 +66,8 @@ public class Player : MonoBehaviour
         if (!IsOnGround() && _field.GetTile(_currentTilePositionInt) == TileType.Empty)
         {
             _playerIsKilled = true;
-            playerAnimation.clip = playerDisappear;
-            playerAnimation.Play();
+            _playerAnimation.clip = _playerDisappear;
+            _playerAnimation.Play();
         }
         
         var position = transform.position + (Vector3) _currentDirection * 
@@ -82,9 +81,9 @@ public class Player : MonoBehaviour
         _currentTilePosition = _lastGroundPosition;
         _direction = Vector2.zero;
         _lastGroundPosition = Vector3.zero;
-        playerAnimation.Rewind();
-        playerAnimation.clip = playerAppear;
-        playerAnimation.Play();
+        _playerAnimation.Rewind();
+        _playerAnimation.clip = _playerAppear;
+        _playerAnimation.Play();
     }
     
     private void PlayerReachNewTile(Vector3 newPosition, Vector3 oldPosition)

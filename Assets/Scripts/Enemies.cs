@@ -12,6 +12,10 @@ public class Enemies : MonoBehaviour
     {
         var enemy = Instantiate(enemiesPrefabs[0], transform);
         enemy.GetComponent<BaseEnemy>().Field = Field;
+        
+        enemy = Instantiate(enemiesPrefabs[0], transform);
+        enemy.GetComponent<BaseEnemy>().Field = Field;
+
     }
 
     // Update is called once per frame
