@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
     private readonly Vector3 _startPosition = new (Mathf.Round(IcwGame.SizeX / 2.0f), 1, 0);
 
-    private Vector3 _startFlowPosition = Vector3.zero;
+    private Vector3 _lastGroundPosition = Vector3.zero;
+    private bool _playerIsKilled = false;
     
     private Vector3 _currentTilePosition;
+    private Vector2Int _currentTilePositionInt;
 
     private Vector2 _direction = Vector2.zero;
     private Vector2 _currentDirection = Vector2.zero;
@@ -15,14 +18,30 @@ public class Player : MonoBehaviour
     private static float _minimalDelta = 0.01f;
     public float playerSpeed = 2.0f;
     [NonSerialized] public Field _field;
+
+    private AnimationClip playerAppear;
+    private AnimationClip playerDisappear;
+    private Animation playerAnimation;
     
     private void Awake()
     {
         transform.SetPositionAndRotation(_startPosition, Quaternion.identity);
+
+        playerAppear = GetComponent<Animation>().GetClip("PlayerAppear");
+        playerDisappear = GetComponent<Animation>().GetClip("PlayerDisappear");
+        playerAnimation = GetComponent<Animation>();
     }
 
     public void Update()
     {
+        if (_playerIsKilled)
+        {
+            if (_field.HasTraceTiles()) return;
+            _playerIsKilled = false;
+            
+            PlayerKilled();
+        }
+        
         _minimalDelta = Time.deltaTime * IcwGame.GameSpeed * playerSpeed;
         
         _direction = GetDirection();
@@ -43,29 +62,48 @@ public class Player : MonoBehaviour
                 PlayerReachNewTile(newTilePosition, _currentTilePosition);
                 _currentTilePosition = newTilePosition;
             }
-        }            
+        }
+
+        if (!IsOnGround() && _field.GetTile(_currentTilePositionInt) == TileType.Empty)
+        {
+            _playerIsKilled = true;
+            playerAnimation.clip = playerDisappear;
+            playerAnimation.Play();
+        }
         
         var position = transform.position + (Vector3) _currentDirection * 
             (Time.deltaTime * IcwGame.GameSpeed * playerSpeed); 
         transform.SetPositionAndRotation(position, Quaternion.identity);
     }
 
+    private void PlayerKilled()
+    {
+        transform.SetPositionAndRotation(_lastGroundPosition, Quaternion.identity);
+        _currentTilePosition = _lastGroundPosition;
+        _direction = Vector2.zero;
+        _lastGroundPosition = Vector3.zero;
+        playerAnimation.Rewind();
+        playerAnimation.clip = playerAppear;
+        playerAnimation.Play();
+    }
+    
     private void PlayerReachNewTile(Vector3 newPosition, Vector3 oldPosition)
     {
         var newFieldPos = new Vector2Int(Mathf.RoundToInt(newPosition.x), Mathf.RoundToInt(newPosition.y));
         var oldFieldPos = new Vector2Int(Mathf.RoundToInt(oldPosition.x), Mathf.RoundToInt(oldPosition.y));
-
+        _currentTilePositionInt = newFieldPos;
+        
         var oldTile = _field.GetTile(oldFieldPos);
         var newTile = _field.GetTile(newFieldPos);
 
         // step from ground
-        if (_startFlowPosition == Vector3.zero && newTile == TileType.Empty)
-            _startFlowPosition = newPosition;
+        if (IsOnGround() && newTile == TileType.Empty)
+            _lastGroundPosition = oldPosition;
         
         // return to ground
-        if (_startFlowPosition != Vector3.zero && newTile.IsGround())
+        if (!IsOnGround() && newTile.IsGround())
         {
-            _startFlowPosition = Vector3.zero;
+            _lastGroundPosition = Vector3.zero;
             _direction = Vector2.zero;
             _field.FillFieldAfterFlow();
         }
@@ -103,5 +141,8 @@ public class Player : MonoBehaviour
     
     private static bool IsOnCenterTile(Vector3 pos)
         => (pos - GetCenterTile(pos)).magnitude < _minimalDelta ;
+
+    public bool IsOnGround()
+        => _lastGroundPosition == Vector3.zero;
     
 }

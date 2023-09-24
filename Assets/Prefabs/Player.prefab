@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2167139765919597348}
   - component: {fileID: -7170441608467323590}
+  - component: {fileID: 1130463700649473955}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -45,6 +46,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a76f6d025f013429fbaf9d93714277ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerSpeed: 2
+--- !u!111 &1130463700649473955
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4857148938817988273}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 0}
+  m_Animations:
+  - {fileID: 7400000, guid: 3ae078efd25ab4e18a35db77264a5cf0, type: 2}
+  - {fileID: 7400000, guid: ef8b2185a8408464c9d51c9d721ddf76, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0
 --- !u!1 &5893105992012683297
 GameObject:
   m_ObjectHideFlags: 0
@@ -56,7 +75,7 @@ GameObject:
   - component: {fileID: 8191793139807042833}
   - component: {fileID: 9139546532564704142}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

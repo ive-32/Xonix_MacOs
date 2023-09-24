@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -55,13 +57,17 @@ public class Field : MonoBehaviour
     public void PutTile(TileType tileType, Vector2Int pos)
         => PutTile(tileType, pos.x, pos.y);
 
-    public void PutTile(TileType tileType, int x, int y)
+    public void PutTile(TileType tileType, int x, int y, float destroyTime = 0.0f)
     {
         var tile = GetTileByType(tileType);
         
-        if (_field[x * IcwGame.SizeY + y].GameObject is not null)
-            Destroy(_field[x * IcwGame.SizeY + y].GameObject);
-        
+        if (_field[x * IcwGame.SizeY + y].GameObject is not null )
+        {
+            if (destroyTime > 0)
+                Destroy(_field[x * IcwGame.SizeY + y].GameObject, destroyTime);
+            else 
+                Destroy(_field[x * IcwGame.SizeY + y].GameObject);
+        }        
         if (tile is not null)
             _field[x * IcwGame.SizeY + y].GameObject = Instantiate(tile, new Vector3(x, y, 0), Quaternion.identity, transform);
 
@@ -161,4 +167,7 @@ public class Field : MonoBehaviour
     {
         _field[x * IcwGame.SizeY + y].GameObject.GetComponent<TraceTile>().HitByEnemy(this); 
     }
+
+    public bool HasTraceTiles()
+        => _field.Any(f => f.TileType == TileType.Trace);
 }

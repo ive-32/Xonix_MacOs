@@ -15,12 +15,15 @@ public class TraceTile : MonoBehaviour
     public void HitByEnemy(Field field)
     {
         _field = field;
-        Destroy(this, 1.0f / (IcwGame.GameSpeed * 5.0f));
+        var pos = Vector2Int.RoundToInt(transform.position);
+        _field.PutTile(TileType.Empty, pos.x, pos.y, 1.0f / (IcwGame.GameSpeed * 8.0f));
         _spriteRenderer.color = Color.red;
     }
     
     public void OnDestroy()
     {
+        if (_field is null) return;
+        
         var pos = Vector2Int.RoundToInt(transform.position);
         var neighbours = new[] { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 
