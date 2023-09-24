@@ -84,6 +84,7 @@ public class Player : MonoBehaviour
         _playerAnimation.Rewind();
         _playerAnimation.clip = _playerAppear;
         _playerAnimation.Play();
+        IcwGame.Lives--;
     }
     
     private void PlayerReachNewTile(Vector3 newPosition, Vector3 oldPosition)

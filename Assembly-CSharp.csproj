@@ -47,6 +47,7 @@
   <ItemGroup>
      <Compile Include="Assets/Scripts/IcwGame.cs" />
      <Compile Include="Assets/Scripts/MainCamera.cs" />
+     <Compile Include="Assets/Scripts/UI/UiLabel.cs" />
      <Compile Include="Assets/Scripts/Extensions/AttributeExtensions.cs" />
      <Compile Include="Assets/Scripts/Field.cs" />
      <Compile Include="Assets/Scripts/Tiles/TraceTile.cs" />
@@ -66,6 +67,7 @@
      <Folder Include="Assets/TextMesh Pro/Sprites" />
      <Folder Include="Assets/TextMesh Pro/Resources/Sprite Assets" />
      <Folder Include="Assets/Resources" />
+     <Folder Include="Assets/Fonts" />
      <None Include="Assets/TextMesh Pro/Shaders/TMP_Bitmap.shader" />
      <Folder Include="Assets/Scripts/Attributes" />
      <Folder Include="Assets/Scripts/Extensions" />
@@ -88,6 +90,7 @@
      <None Include="Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt" />
      <None Include="Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc" />
      <None Include="Assets/TextMesh Pro/Shaders/TMPro_Surface.cginc" />
+     <Folder Include="Assets/Scripts/UI" />
      <Folder Include="Assets/TextMesh Pro/Shaders" />
      <Folder Include="Assets/TextMesh Pro/Resources/Style Sheets" />
      <Folder Include="Assets/TextMesh Pro/Fonts" />
