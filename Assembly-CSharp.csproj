@@ -50,6 +50,7 @@
      <Compile Include="Assets/Scripts/UI/UiLabel.cs" />
      <Compile Include="Assets/Scripts/Extensions/AttributeExtensions.cs" />
      <Compile Include="Assets/Scripts/Field.cs" />
+     <Compile Include="Assets/Scripts/UI/UiPanel.cs" />
      <Compile Include="Assets/Scripts/Tiles/TraceTile.cs" />
      <Compile Include="Assets/Scripts/Game.cs" />
      <Compile Include="Assets/Scripts/Player.cs" />

@@ -4,14 +4,20 @@ using UnityEngine;
 public class UiLabel : MonoBehaviour
 {
     private TextMeshProUGUI _text;
-
-    private void Awake()
+    private string _currentText;
+    
+    public void Awake()
     {
         _text = transform.GetComponentInChildren<TextMeshProUGUI>();
+        _currentText = string.Empty;
     }
 
-    // Start is called before the first frame update
-
     public void SetText(string text)
-        => _text.SetText(text);
+    {
+        if (_currentText != text)
+        {
+            _text.SetText(text);
+            _currentText = text;
+        }
+    }
 }

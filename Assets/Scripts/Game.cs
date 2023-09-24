@@ -40,6 +40,7 @@ public class Game : MonoBehaviour
 
         _scoresText = _scoresLabel.GetComponent<UiLabel>();
         _livesText = _livesLabel.GetComponent<UiLabel>();
+        
         IcwGame.Scores = 0;
         IcwGame.Lives = 5;
     }
