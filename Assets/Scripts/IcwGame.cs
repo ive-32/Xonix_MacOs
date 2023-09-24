@@ -6,4 +6,5 @@ public static class IcwGame
 
     public static int Scores = 0;
     public static int Lives = 5;
+    public static int Filled = 0;
 }

@@ -147,14 +147,20 @@ public class Field : MonoBehaviour
             _startFillPoints.RemoveAt(_startFillPoints.Count - 1);
             FillFromPoint(currFillPoint, 1);
         }
-        
+
+        var scores = 0;
         // fills areas where enemy not detected
         for (var i = 0; i < IcwGame.SizeX; i++)
         for (var j = 0; j < IcwGame.SizeY; j++)
         {
-            if (_tmpFieldProjection[i, j] == 0 || GetTileType(i ,j) == TileType.Trace)
+            if (_tmpFieldProjection[i, j] == 0 || GetTileType(i, j) == TileType.Trace)
+            {
                 PutTile(TileType.Filled, i, j);
+                scores++;
+            }
         }
+
+        IcwGame.Scores += scores;
     }
     
     #endregion
@@ -167,4 +173,12 @@ public class Field : MonoBehaviour
 
     public bool HasTraceTiles()
         => _field.Any(f => f.TileType == TileType.Trace);
+
+    public int GetFillPercents()
+    {
+        var total = (IcwGame.SizeX - 4) * (IcwGame.SizeY - 4);
+        var borders = IcwGame.SizeX * 4 + IcwGame.SizeY * 4 - 16;
+        var filled = _field.Count(t => t.TileType.IsGround()) - borders;
+        return filled * 100 / total;
+    }
 }

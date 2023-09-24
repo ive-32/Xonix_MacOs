@@ -10,9 +10,13 @@ public class UiPanel : MonoBehaviour
 {
     public TextMeshProUGUI ButtonText;
     public TextMeshProUGUI MainText;
+    public delegate void OnClickDelegate();
+
+    [NonSerialized] public OnClickDelegate OnClickMethod;
     
     public void OnClick()
     { 
+        OnClickMethod?.Invoke();
         Destroy(this.GameObject());
     }
 
