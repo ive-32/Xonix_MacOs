@@ -13,7 +13,10 @@ public class Enemies : MonoBehaviour
         var enemy = Instantiate(enemiesPrefabs[0], transform);
         enemy.GetComponent<BaseEnemy>().Field = Field;
         
-        enemy = Instantiate(enemiesPrefabs[0], transform);
+        enemy = Instantiate(enemiesPrefabs[1], transform);
+        enemy.GetComponent<BaseEnemy>().Field = Field;
+
+        enemy = Instantiate(enemiesPrefabs[2], transform);
         enemy.GetComponent<BaseEnemy>().Field = Field;
 
     }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -10,18 +9,12 @@ public class Field : MonoBehaviour
     [FormerlySerializedAs("TilesList")] public List<GameObject> tilesList = new List<GameObject>();
     [NonSerialized] public Enemies Enemies;
     
-    private class FieldTile
-    {
-        public TileType TileType = TileType.Empty;
-        public GameObject GameObject;
-    };
-
     private readonly FieldTile[] _field = new FieldTile[IcwGame.SizeX * IcwGame.SizeY];
 
     public void Awake()
     {
         for (var i = 0; i < IcwGame.SizeX * IcwGame.SizeY ; i++)
-            _field[i] = new FieldTile();
+            _field[i] = new FieldTile(i / IcwGame.SizeY, i % IcwGame.SizeY);
     }
 
     public void Start()
@@ -48,12 +41,15 @@ public class Field : MonoBehaviour
         }
     }
 
-    public TileType GetTile(int x, int y)
+    public TileType GetTileType(int x, int y)
         => _field[x * IcwGame.SizeY + y].TileType;
 
-    public TileType GetTile(Vector2Int pos)
+    public TileType GetTileType(Vector2Int pos)
         => _field[pos.x * IcwGame.SizeY + pos.y].TileType;
 
+    public FieldTile GetTile(Vector2Int pos)
+        => _field[pos.x * IcwGame.SizeY + pos.y];
+    
     public void PutTile(TileType tileType, Vector2Int pos)
         => PutTile(tileType, pos.x, pos.y);
 
@@ -156,17 +152,18 @@ public class Field : MonoBehaviour
         for (var i = 0; i < IcwGame.SizeX; i++)
         for (var j = 0; j < IcwGame.SizeY; j++)
         {
-            if (_tmpFieldProjection[i, j] == 0 || GetTile(i ,j) == TileType.Trace)
+            if (_tmpFieldProjection[i, j] == 0 || GetTileType(i ,j) == TileType.Trace)
                 PutTile(TileType.Filled, i, j);
         }
     }
     
     #endregion
 
+    public void HitTraceTile(Vector2Int pos)
+        => HitTraceTile(pos.x, pos.y); 
+
     public void HitTraceTile(int x, int y)
-    {
-        _field[x * IcwGame.SizeY + y].GameObject.GetComponent<TraceTile>().HitByEnemy(this); 
-    }
+        => _field[x * IcwGame.SizeY + y].GameObject.GetComponent<TraceTile>().HitByEnemy(this); 
 
     public bool HasTraceTiles()
         => _field.Any(f => f.TileType == TileType.Trace);

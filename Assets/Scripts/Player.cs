@@ -52,7 +52,7 @@ public class Player : MonoBehaviour
             transform.SetPositionAndRotation(newTilePosition, Quaternion.identity);
             
             if (_currentDirection.x + _direction.x + _currentDirection.y + _direction.y == 0)
-                _direction = Vector2.zero;
+                StopPlayer();
             
             _currentDirection = _direction;
 
@@ -63,7 +63,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (!IsOnGround() && _field.GetTile(_currentTilePositionInt) == TileType.Empty)
+        if (!IsOnGround() && _field.GetTileType(_currentTilePositionInt) == TileType.Empty)
         {
             _playerIsKilled = true;
             _playerAnimation.clip = _playerDisappear;
@@ -79,7 +79,7 @@ public class Player : MonoBehaviour
     {
         transform.SetPositionAndRotation(_lastGroundPosition, Quaternion.identity);
         _currentTilePosition = _lastGroundPosition;
-        _direction = Vector2.zero;
+        StopPlayer();
         _lastGroundPosition = Vector3.zero;
         _playerAnimation.Rewind();
         _playerAnimation.clip = _playerAppear;
@@ -92,9 +92,16 @@ public class Player : MonoBehaviour
         var oldFieldPos = new Vector2Int(Mathf.RoundToInt(oldPosition.x), Mathf.RoundToInt(oldPosition.y));
         _currentTilePositionInt = newFieldPos;
         
-        var oldTile = _field.GetTile(oldFieldPos);
-        var newTile = _field.GetTile(newFieldPos);
+        var oldTile = _field.GetTileType(oldFieldPos);
+        var newTile = _field.GetTileType(newFieldPos);
+        var nextNewTile = _field.GetTileType(newFieldPos + Vector2Int.RoundToInt(_direction));
 
+        //stop before going from ground
+        if (nextNewTile == TileType.Empty && newTile.IsGround())
+        {
+            StopPlayer();
+        }
+        
         // step from ground
         if (IsOnGround() && newTile == TileType.Empty)
             _lastGroundPosition = oldPosition;
@@ -103,13 +110,20 @@ public class Player : MonoBehaviour
         if (!IsOnGround() && newTile.IsGround())
         {
             _lastGroundPosition = Vector3.zero;
-            _direction = Vector2.zero;
+            StopPlayer();
             _field.FillFieldAfterFlow();
         }
         
         // set trace
         if (!newTile.IsGround())
             _field.PutTile(TileType.Trace, newFieldPos);
+    }
+
+    private void StopPlayer()
+    {
+        _direction = Vector2.zero;
+        if (IsOnCenterTile(transform.position))
+            _currentDirection = Vector2.zero;
     }
     
     private Vector2 CorrectDirection(Vector2 dir)

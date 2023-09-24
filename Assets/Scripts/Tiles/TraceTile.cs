@@ -28,7 +28,7 @@ public class TraceTile : MonoBehaviour
         foreach (var neighbour in neighbours)
         {
             var neighbourPos = pos + neighbour;
-            if (Field.IsPositionValid(neighbourPos) && _field.GetTile(neighbourPos) == TileType.Trace) 
+            if (Field.IsPositionValid(neighbourPos) && _field.GetTileType(neighbourPos) == TileType.Trace) 
                 _field.HitTraceTile(neighbourPos.x, neighbourPos.y);
         }
     }
