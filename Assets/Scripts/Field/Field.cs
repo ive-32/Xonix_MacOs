@@ -10,6 +10,7 @@ public class Field : MonoBehaviour
 {
     [FormerlySerializedAs("TilesList")] public List<GameObject> tilesList = new List<GameObject>();
     [NonSerialized] public Enemies Enemies;
+    [NonSerialized] public FieldMeta FieldMeta;
     
     private readonly FieldTile[] _field = new FieldTile[IcwGame.SizeX * IcwGame.SizeY];
 
@@ -194,13 +195,13 @@ public class Field : MonoBehaviour
             return;
         }
         
-        var storedField = JsonConvert.DeserializeObject<StoredField>(targetFile.ToString());
+        FieldMeta = JsonConvert.DeserializeObject<FieldMeta>(targetFile.ToString());
         
         for (var y = 0; y < IcwGame.SizeY; y++)
         {
             for (var x = 0; x < IcwGame.SizeX; x++)
             {
-                var tile = Enum.Parse<TileType>(storedField.Field[y][x].ToString());
+                var tile = Enum.Parse<TileType>(FieldMeta.Field[y][x].ToString());
                 PutTile(tile, x, IcwGame.SizeY - 1 - y);
             }
         }
@@ -208,7 +209,7 @@ public class Field : MonoBehaviour
 
     private void SaveField()
     {
-        var storedField = new StoredField();
+        var storedField = new FieldMeta();
 
         var s = new char[IcwGame.SizeX];
         for (var y = 0; y < IcwGame.SizeY; y++)
