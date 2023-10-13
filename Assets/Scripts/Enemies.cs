@@ -20,10 +20,5 @@ public class Enemies : MonoBehaviour
         enemy.GetComponent<BaseEnemy>().Field = Field;
 
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 }

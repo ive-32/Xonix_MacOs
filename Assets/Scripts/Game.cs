@@ -26,8 +26,7 @@ public class Game : MonoBehaviour
     
     void Start()
     {
-        BuildGame(true);
-        ShowPanel();
+        GameOver();
     }
 
     private void Update()
@@ -38,20 +37,33 @@ public class Game : MonoBehaviour
         if (IcwGame.Lives == 0)
             GameOver();
 
-        if (Time.time - lastCalculatedPercent > 0.1f)
+        //if (Time.time - lastCalculatedPercent > 0.1f)
         {
             lastCalculatedPercent = Time.time;
             IcwGame.Filled = _field.GetFillPercents();
         }
+
+        if (IcwGame.Filled >= 80)
+        {
+            NextLevel();
+        }
     }
 
-    private void ShowPanel()
+    private void ShowPanel(string text = null, UiPanel.OnClickDelegate startMethod = null)
     {
-        var panel = Instantiate(uIPanelPrefab, new Vector3(IcwGame.SizeX / 2.0f, IcwGame.SizeY / 2.0f, -1.0f),
+        var panel = Instantiate(uIPanelPrefab, new Vector3(IcwGame.SizeX / 2.0f, IcwGame.SizeY / 4.0f, -1.0f),
             Quaternion.identity, transform);
         _panel = panel.GetComponent<UiPanel>();
-        _panel.OnClickMethod += StartGame;
-        _panel.SetMainText("cut the field" + Environment.NewLine + "avoid enemies");
+        
+        _panel.OnClickMethod += startMethod ?? StartGame;
+        
+        if (text is null)
+            _panel.SetMainText("Move across the field to capture territory. Capture 80%." + 
+                               Environment.NewLine + 
+                               "Avoid enemies from crossing your trail. Have Fun!" 
+                               );
+        else 
+            _panel.SetMainText(text);
     }
 
     private void BuildGame(bool isSplashScreen = false)
@@ -95,7 +107,15 @@ public class Game : MonoBehaviour
     
     private void GameOver()
     {
+        IcwGame.Level = 0;
         BuildGame(true);
-        ShowPanel();
+        ShowPanel(startMethod: NextLevel);
+    }
+
+    private void NextLevel()
+    {
+        IcwGame.Level++;
+        BuildGame(true);
+        ShowPanel($"Level {IcwGame.Level}");
     }
 }

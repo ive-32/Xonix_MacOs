@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -24,21 +26,7 @@ public class Field : MonoBehaviour
 
     public void BuildField()
     {
-        for (var i = 0; i < IcwGame.SizeX; i++)
-        {
-            PutTile(TileType.Border, i, 0);
-            PutTile(TileType.Border, i, 1);
-            PutTile(TileType.Border, i, IcwGame.SizeY - 2);
-            PutTile(TileType.Border, i, IcwGame.SizeY - 1);
-        }
-
-        for (var j = 2; j < IcwGame.SizeY - 2; j++)
-        {
-            PutTile(TileType.Border, 0, j);
-            PutTile(TileType.Border, 1, j);
-            PutTile(TileType.Border, IcwGame.SizeX - 2, j);
-            PutTile(TileType.Border, IcwGame.SizeX - 1, j);
-        }
+        LoadField();
     }
 
     public TileType GetTileType(int x, int y)
@@ -107,9 +95,9 @@ public class Field : MonoBehaviour
         
         var tmpVector = Vector3.up;
         
-        for (var i = 0; i < 9; i++)
+        for (var i = 0; i < 4; i++)
         {
-            tmpVector = Quaternion.AngleAxis(45, Vector3.forward) * tmpVector;
+            tmpVector = Quaternion.AngleAxis(90, Vector3.forward) * tmpVector;
             var tmpVectorInt = Vector3Int.RoundToInt(tmpVector);
             
             if (_tmpFieldProjection[startPoint.x + tmpVectorInt.x, startPoint.y + tmpVectorInt.y] != 0) 
@@ -180,5 +168,59 @@ public class Field : MonoBehaviour
         var borders = IcwGame.SizeX * 4 + IcwGame.SizeY * 4 - 16;
         var filled = _field.Count(t => t.TileType.IsGround()) - borders;
         return filled * 100 / total;
+    }
+
+    private void LoadField()
+    {
+        var targetFile = Resources.Load<TextAsset>($"Level{IcwGame.Level}");
+
+        if (targetFile is null)
+        {
+            for (var i = 0; i < IcwGame.SizeX; i++)
+            {
+                PutTile(TileType.Border, i, 0);
+                PutTile(TileType.Border, i, 1);
+                PutTile(TileType.Border, i, IcwGame.SizeY - 2);
+                PutTile(TileType.Border, i, IcwGame.SizeY - 1);
+            }
+
+            for (var j = 2; j < IcwGame.SizeY - 2; j++)
+            {
+                PutTile(TileType.Border, 0, j);
+                PutTile(TileType.Border, 1, j);
+                PutTile(TileType.Border, IcwGame.SizeX - 2, j);
+                PutTile(TileType.Border, IcwGame.SizeX - 1, j);
+            }
+            return;
+        }
+        
+        var storedField = JsonConvert.DeserializeObject<StoredField>(targetFile.ToString());
+        
+        for (var y = 0; y < IcwGame.SizeY; y++)
+        {
+            for (var x = 0; x < IcwGame.SizeX; x++)
+            {
+                var tile = Enum.Parse<TileType>(storedField.Field[y][x].ToString());
+                PutTile(tile, x, IcwGame.SizeY - 1 - y);
+            }
+        }
+    }
+
+    private void SaveField()
+    {
+        var storedField = new StoredField();
+
+        var s = new char[IcwGame.SizeX];
+        for (var y = 0; y < IcwGame.SizeY; y++)
+        {
+            Span<char> target = s;
+            for (var x = 0; x < IcwGame.SizeX; x++)
+                target[x] = ((int)_field[x * IcwGame.SizeY + y].TileType).ToString()[0];
+            storedField.Field[y] = target.ToString();
+        }
+        var serialisedField = JsonConvert.SerializeObject(storedField);
+        
+        File.WriteAllText(Application.persistentDataPath + "/Level.json", serialisedField);         
+
     }
 }
