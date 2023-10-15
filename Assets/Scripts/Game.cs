@@ -8,13 +8,18 @@ public class Game : MonoBehaviour
     [FormerlySerializedAs("player")] public GameObject playerPrefab;
     [FormerlySerializedAs("field")] public GameObject fieldPrefab;
     [FormerlySerializedAs("enemies")] public GameObject enemiesPrefab;
-    [FormerlySerializedAs("uilabel")]public GameObject uILabelPrefab;
-    [FormerlySerializedAs("uipanel")]public GameObject uIPanelPrefab;
+    [FormerlySerializedAs("uiLabel")]public GameObject uILabelPrefab;
+    [FormerlySerializedAs("uiPanel")]public GameObject uIPanelPrefab;
+    [FormerlySerializedAs("uiSplash")]public GameObject uISplashTextPrefab;
+    [FormerlySerializedAs("bonuses")]public GameObject bonusesPrefab;
 
     private Field _field;
+    private Bonuses _bonuses;
     private GameObject _scoresLabel;
     private GameObject _livesLabel;
     private GameObject _filledLabel;
+    private GameObject _playerObject;
+    private GameObject _labelObject;
 
     private UiLabel _scoresText;
     private UiLabel _livesText;
@@ -22,40 +27,58 @@ public class Game : MonoBehaviour
 
     private UiPanel _panel;
 
-    private float lastCalculatedPercent;
+    private GameState _gameState = GameState.SplashScreen;
     
     void Start()
     {
-        GameOver();
+        ShowSplashScreen();
     }
 
     private void Update()
     {
+        if (_gameState is GameState.GameOver or GameState.LevelCompleted)
+        {
+            IcwGame.GameSpeed -=  Time.deltaTime * 5 / 2.0f;
+            if (IcwGame.GameSpeed > 0) return;
+            
+            if (_gameState == GameState.GameOver)
+                ShowSplashScreen();
+            if (_gameState == GameState.LevelCompleted)
+                NextLevel();
+            
+            return;
+        }
+
+        if (_gameState is GameState.NextLevelScreen)
+        {
+            IcwGame.GameSpeed +=  Time.deltaTime * 5;
+            if (IcwGame.GameSpeed < IcwGame.DefaultGameSpeed) return;
+    
+            LevelStart();
+        }
+
         _scoresText.SetText($"Scores: {IcwGame.Scores}");
         _livesText.SetText($"Lives: {IcwGame.Lives}");
         _filledText.SetText($"Filled: {IcwGame.Filled}% / 80%");    
+        
         if (IcwGame.Lives == 0)
             GameOver();
 
-        //if (Time.time - lastCalculatedPercent > 0.1f)
-        {
-            lastCalculatedPercent = Time.time;
-            IcwGame.Filled = _field.GetFillPercents();
-        }
+        IcwGame.Filled = _field.GetFillPercents();
 
         if (IcwGame.Filled >= 80)
         {
-            NextLevel();
+            LevelCompleted();
         }
     }
 
-    private void ShowPanel(string text = null, UiPanel.OnClickDelegate startMethod = null)
+    private void ShowPanel(string text = null)
     {
         var panel = Instantiate(uIPanelPrefab, new Vector3(IcwGame.SizeX / 2.0f, IcwGame.SizeY / 4.0f, -1.0f),
             Quaternion.identity, transform);
         _panel = panel.GetComponent<UiPanel>();
         
-        _panel.OnClickMethod += startMethod ?? StartGame;
+        _panel.OnClickMethod += NextLevel;
         
         if (text is null)
             _panel.SetMainText("Move across the field to capture territory. Capture 80%." + 
@@ -66,24 +89,23 @@ public class Game : MonoBehaviour
             _panel.SetMainText(text);
     }
 
-    private void BuildGame(bool isSplashScreen = false)
+    private void BuildGame()
     {
         foreach (Transform child in transform)
             Destroy(child.GameObject());
 
         var fieldObject = Instantiate(fieldPrefab, transform);
         var enemiesObject = Instantiate(enemiesPrefab, transform);
+        var bonusesObject = Instantiate(bonusesPrefab, transform);
 
-        _field = fieldObject.GetComponent<Field>(); 
-
+        _field = fieldObject.GetComponent<Field>();
+        _bonuses = bonusesObject.GetComponent<Bonuses>();
         _field.Enemies = enemiesObject.GetComponent<Enemies>();
-        enemiesObject.GetComponent<Enemies>().Field = _field;
         
-        if (!isSplashScreen)
-        {
-            var playerObject = Instantiate(playerPrefab, transform);
-            playerObject.GetComponent<Player>()._field = _field;
-        }
+        var enemies = enemiesObject.GetComponent<Enemies>();
+        enemies.Field = _field;
+        _bonuses.Field = _field;
+        _bonuses.Enemies = enemies;
         
         _scoresLabel = Instantiate(uILabelPrefab, new Vector3(3, IcwGame.SizeY, 0), Quaternion.identity, transform);
         _livesLabel = Instantiate(uILabelPrefab, new Vector3(13, IcwGame.SizeY, 0), Quaternion.identity, transform);
@@ -97,25 +119,61 @@ public class Game : MonoBehaviour
         IcwGame.Lives = 5;
         IcwGame.Filled = 0;
 
-        lastCalculatedPercent = 0f;
-    }
-    
-    private void StartGame()
-    {
-        BuildGame();
-    }
-    
-    private void GameOver()
-    {
-        IcwGame.Level = 0;
-        BuildGame(true);
-        ShowPanel(startMethod: NextLevel);
     }
 
+    private void AddPlayer()
+    {
+        _playerObject = Instantiate(playerPrefab, transform);
+        var player = _playerObject.GetComponent<Player>();
+        player.Field = _field;
+        player.Bonuses = _bonuses;
+    }
+    
+    private void ShowLabel(string text)
+    {
+        _labelObject = Instantiate(uISplashTextPrefab, new Vector3(IcwGame.SizeX / 2.0f, IcwGame.SizeY / 2.0f , 0), 
+            Quaternion.identity, transform);
+        var textObject = _labelObject.GetComponent<UiLabel>();
+        textObject.SetText(text);
+    }
+
+    private void ShowSplashScreen()
+    {
+        IcwGame.Level = 0;
+        IcwGame.GameSpeed = IcwGame.DefaultGameSpeed;
+        _gameState = GameState.SplashScreen;
+        BuildGame();
+        ShowPanel();
+    }
+    
+    private void LevelStart()
+    {
+        _gameState = GameState.InGame;
+        IcwGame.GameSpeed = IcwGame.DefaultGameSpeed;
+        AddPlayer();
+    }
+    
     private void NextLevel()
     {
+        _gameState = GameState.NextLevelScreen;
+        IcwGame.GameSpeed = 0;
         IcwGame.Level++;
-        BuildGame(true);
-        ShowPanel($"Level {IcwGame.Level}");
+        BuildGame();
+        ShowLabel($"Level {IcwGame.Level}");
     }
+
+    private void GameOver()
+    {
+        Destroy(_playerObject);
+        _gameState = GameState.GameOver;
+        ShowLabel("Game Over");
+    }
+
+    private void LevelCompleted()
+    {
+        Destroy(_playerObject);
+        _gameState = GameState.LevelCompleted;
+        ShowLabel("Level completed");
+    }
+
 }

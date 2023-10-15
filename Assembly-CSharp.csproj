@@ -45,14 +45,22 @@
     <Analyzer Include="/Applications/Unity/Hub/Editor/2022.3.10f1/Unity.app/Contents/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets/Scripts/Bonuses/FieldShieldBonus.cs" />
      <Compile Include="Assets/Scripts/IcwGame.cs" />
      <Compile Include="Assets/Scripts/MainCamera.cs" />
+     <Compile Include="Assets/Scripts/Bonuses/SpeedUpBonus.cs" />
      <Compile Include="Assets/Scripts/UI/UiLabel.cs" />
      <Compile Include="Assets/Scripts/Extensions/AttributeExtensions.cs" />
      <Compile Include="Assets/Scripts/Field/TraceTile.cs" />
+     <Compile Include="Assets/Scripts/Bonuses/BaseBonus.cs" />
      <Compile Include="Assets/Scripts/UI/UiPanel.cs" />
+     <Compile Include="Assets/Scripts/Enums/BonusType.cs" />
+     <Compile Include="Assets/Scripts/Tools.cs" />
      <Compile Include="Assets/Scripts/Game.cs" />
+     <Compile Include="Assets/Scripts/Bonuses/Bonuses.cs" />
+     <Compile Include="Assets/Scripts/Enums/GameState.cs" />
      <Compile Include="Assets/Scripts/Player.cs" />
+     <Compile Include="Assets/Scripts/Enums/BonusState.cs" />
      <Compile Include="Assets/Scripts/Extensions/Vector3Extensions.cs" />
      <Compile Include="Assets/Scripts/Enemies/DestroyerEnemy.cs" />
      <Compile Include="Assets/Scripts/Enemies/BaseEnemy.cs" />
@@ -60,6 +68,9 @@
      <Compile Include="Assets/Scripts/Attributes/GroundAttribute.cs" />
      <Compile Include="Assets/Scripts/Enums/EnemyType.cs" />
      <Compile Include="Assets/Scripts/Enemies/SuperDestroyerEnemy.cs" />
+     <Compile Include="Assets/Scripts/Bonuses/BorderShieldBonus.cs" />
+     <Compile Include="Assets/Scripts/Bonuses/IBonus.cs" />
+     <Compile Include="Assets/Scripts/UI/UiSplashLabel.cs" />
      <Compile Include="Assets/Scripts/Enemies.cs" />
      <Compile Include="Assets/Scripts/Enums/TileType.cs" />
      <Compile Include="Assets/Scripts/Field/FieldMeta.cs" />
@@ -73,6 +84,7 @@
      <Folder Include="Assets/Fonts" />
      <None Include="Assets/TextMesh Pro/Shaders/TMP_Bitmap.shader" />
      <None Include="Assets/Resources/Level4.json" />
+     <Folder Include="Assets/Scripts/Bonuses" />
      <Folder Include="Assets/Scripts/Attributes" />
      <Folder Include="Assets/Scripts/Extensions" />
      <Folder Include="Assets/TextMesh Pro/Resources/Fonts &amp; Materials" />
