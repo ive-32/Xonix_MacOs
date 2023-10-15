@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -11,6 +12,7 @@ public class Field : MonoBehaviour
     [FormerlySerializedAs("TilesList")] public List<GameObject> tilesList = new List<GameObject>();
     [NonSerialized] public Enemies Enemies;
     [NonSerialized] public FieldMeta FieldMeta;
+    [NonSerialized] public GameObject SplashTextPrefab;
     
     private readonly FieldTile[] _field = new FieldTile[IcwGame.SizeX * IcwGame.SizeY];
 
@@ -36,6 +38,9 @@ public class Field : MonoBehaviour
     public TileType GetTileType(Vector2Int pos)
         => _field[pos.x * IcwGame.SizeY + pos.y].TileType;
 
+    public TileType GetTileType(Vector3 pos)
+        => _field[Mathf.RoundToInt(pos.x) * IcwGame.SizeY + Mathf.RoundToInt(pos.y)].TileType;
+
     public FieldTile GetTile(Vector2Int pos)
         => _field[pos.x * IcwGame.SizeY + pos.y];
     
@@ -59,14 +64,16 @@ public class Field : MonoBehaviour
         _field[x * IcwGame.SizeY + y].TileType = tileType;
     }
 
-    public static bool IsPositionValid(float x, float y)
+    /*public static bool IsPositionValid(float x, float y)
         => IsPositionValid(Mathf.RoundToInt(x), Mathf.RoundToInt(y)); 
     
     public static bool IsPositionValid(int x, int y)
         => x is >= 0 and < IcwGame.SizeX && y is >= 0 and < IcwGame.SizeY;
+    
     public static bool IsPositionValid(Vector2Int pos)
         => IsPositionValid(pos.x, pos.y);
-
+*/
+    
     private GameObject GetTileByType(TileType tileType)
         => tileType switch
         {
@@ -138,6 +145,7 @@ public class Field : MonoBehaviour
         }
 
         var scores = 0;
+        var centerTile = Vector2.zero;
         // fills areas where enemy not detected
         for (var i = 0; i < IcwGame.SizeX; i++)
         for (var j = 0; j < IcwGame.SizeY; j++)
@@ -145,10 +153,18 @@ public class Field : MonoBehaviour
             if (_tmpFieldProjection[i, j] == 0 || GetTileType(i, j) == TileType.Trace)
             {
                 PutTile(TileType.Filled, i, j);
+                centerTile += new Vector2(i, j);
                 scores++;
             }
         }
 
+        centerTile = scores == 0 ? centerTile : centerTile / scores;
+        if (centerTile != Vector2.zero && SplashTextPrefab is not null)
+        {
+            var splashText = Instantiate(SplashTextPrefab, centerTile, quaternion.identity);
+            splashText.GetComponent<UiSplashLabel>().SetText($"+{scores}");
+        }
+        
         IcwGame.Scores += scores;
     }
     

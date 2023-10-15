@@ -1,14 +1,13 @@
-using TMPro;
 using UnityEngine;
 
 public class UiSplashLabel : UiLabel
 {
-    private Animation _animation;
+    private float _timeToLive = 1.0f;
 
-    public override void Awake()
+    private void Update()
     {
-        _animation = GetComponent<Animation>();
-
-        _animation.enabled = false;
+        _timeToLive -= Time.deltaTime;
+        if (_timeToLive <= 0)
+            Destroy(this.gameObject);
     }
 }

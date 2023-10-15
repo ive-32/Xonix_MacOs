@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
@@ -10,11 +9,9 @@ public class Bonuses : MonoBehaviour
 {
     [FormerlySerializedAs("bonusesPrefabsList")] 
     public List<GameObject> BonusesPrefabs = new();
-    
-    [NonSerialized] public Player Player;
-    [NonSerialized] public Field Field;
-    [NonSerialized] public Enemies Enemies;
 
+    [NonSerialized] public GameObject SplashTextPrefab;
+    
     private float _timeToNextBonus = 1.0f;
     
     public void Update()
@@ -41,7 +38,8 @@ public class Bonuses : MonoBehaviour
                 bonuses.Any(b => b.BonusType is BonusType.BorderShield or BonusType.FieldShield))
                 return;
                 
-            Instantiate(BonusesPrefabs[bonusPrefabIndex], transform);
+            var bonus = Instantiate(BonusesPrefabs[bonusPrefabIndex], transform);
+            bonus.GetComponent<IBonus>().SplashTextPrefab = SplashTextPrefab;
         }
     }
 
@@ -59,7 +57,7 @@ public class Bonuses : MonoBehaviour
 
     private void SetTimeToNextBonus() => _timeToNextBonus = 4.0f; //Random.Range(3.0f, 3.0f);
 
-    private BonusType MapToBonusType(int index) => index switch
+    private static BonusType MapToBonusType(int index) => index switch
         {
             0 => BonusType.BorderShield,
             1 => BonusType.FieldShield,

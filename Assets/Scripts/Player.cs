@@ -13,10 +13,10 @@ public class Player : MonoBehaviour
 
     private Vector2 _direction = Vector2.zero;
     private Vector2 _currentDirection = Vector2.zero;
-
     private static float _minimalDelta = 0.01f;
-    [NonSerialized] public const float PlayerDefaultSpeed = 2.0f;
-    [NonSerialized] public float PlayerSpeed = 2.0f;
+    
+    [NonSerialized] public const float PlayerDefaultSpeed = 1.5f;
+    [NonSerialized] public float PlayerSpeed = PlayerDefaultSpeed;
     [NonSerialized] public Field Field;
     [NonSerialized] public TileType TraceTile = TileType.Trace;
     [NonSerialized] public Bonuses Bonuses;
@@ -40,6 +40,7 @@ public class Player : MonoBehaviour
         _playerAnimation.Rewind();
         _playerAnimation.clip = _playerAppear;
         _playerAnimation.Play();
+        _lastGroundPosition = _startPosition;
     }
 
     public void Update()
@@ -57,7 +58,7 @@ public class Player : MonoBehaviour
         _direction = GetDirection();
         _direction = CorrectDirection(_direction);
         
-        if (IsOnCenterTile(transform.position))
+        if (transform.position.IsOnCenterTile(_minimalDelta))
         {
             var newTilePosition = transform.position.GetCenterTile();
             transform.SetPositionAndRotation(newTilePosition, Quaternion.identity);
@@ -89,12 +90,18 @@ public class Player : MonoBehaviour
         transform.SetPositionAndRotation(position, Quaternion.identity);
     }
 
+    public void KillPlayer()
+    {
+        _playerIsKilled = true;
+        _lastGroundPosition = _startPosition;
+    }
+    
     private void PlayerKilled()
     {
         transform.SetPositionAndRotation(_lastGroundPosition, Quaternion.identity);
         _currentTilePosition = _lastGroundPosition;
         StopPlayer();
-        _lastGroundPosition = Vector3.zero;
+        _lastGroundPosition = _startPosition;
         _playerAnimation.Rewind();
         _playerAnimation.clip = _playerAppear;
         _playerAnimation.Play();
@@ -140,15 +147,15 @@ public class Player : MonoBehaviour
     private void StopPlayer()
     {
         _direction = Vector2.zero;
-        if (IsOnCenterTile(transform.position))
+        if (transform.position.IsOnCenterTile(_minimalDelta))
             _currentDirection = Vector2.zero;
     }
     
     private Vector2 CorrectDirection(Vector2 dir)
     {
-        var nextTile = transform.position.GetCenterTile();
+        var nextTile = transform.position.GetCenterTile() + dir.ToVector3();
         
-        return Field.IsPositionValid(nextTile.x + dir.x, nextTile.y + dir.y) ? dir : Vector2.zero;
+        return nextTile.IsPositionValid() ? dir : Vector2.zero;
     }
     
     private Vector2 GetDirection()
@@ -167,9 +174,6 @@ public class Player : MonoBehaviour
         return direction;
     }
     
-    private static bool IsOnCenterTile(Vector3 pos)
-        => (pos - pos.GetCenterTile()).magnitude < _minimalDelta ;
-
     public bool IsOnGround()
         => _lastGroundPosition == Vector3.zero;
     

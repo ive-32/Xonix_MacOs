@@ -8,6 +8,7 @@ public class BaseEnemy : MonoBehaviour
 {
     [NonSerialized] public float EnemySpeed = 2.0f;
     [NonSerialized] public Field Field;
+    [NonSerialized] public GameObject Player;
     protected Vector3 Direction;
     
     protected virtual void Start()
@@ -20,7 +21,7 @@ public class BaseEnemy : MonoBehaviour
         } while (Mathf.Abs(Direction.x) < 0.3f || Mathf.Abs(Direction.y) < 0.3f);
     }
 
-    protected void Update()
+    protected virtual void Update()
     {
         var (reflectionNormalVector, tiles) = GetCollision(transform.position,
             new[] { TileType.Border, TileType.Filled });

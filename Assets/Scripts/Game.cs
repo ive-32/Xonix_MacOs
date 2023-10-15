@@ -101,11 +101,11 @@ public class Game : MonoBehaviour
         _field = fieldObject.GetComponent<Field>();
         _bonuses = bonusesObject.GetComponent<Bonuses>();
         _field.Enemies = enemiesObject.GetComponent<Enemies>();
+        _field.SplashTextPrefab = uISplashTextPrefab;
         
         var enemies = enemiesObject.GetComponent<Enemies>();
         enemies.Field = _field;
-        _bonuses.Field = _field;
-        _bonuses.Enemies = enemies;
+        _bonuses.SplashTextPrefab = uISplashTextPrefab;
         
         _scoresLabel = Instantiate(uILabelPrefab, new Vector3(3, IcwGame.SizeY, 0), Quaternion.identity, transform);
         _livesLabel = Instantiate(uILabelPrefab, new Vector3(13, IcwGame.SizeY, 0), Quaternion.identity, transform);
@@ -127,6 +127,7 @@ public class Game : MonoBehaviour
         var player = _playerObject.GetComponent<Player>();
         player.Field = _field;
         player.Bonuses = _bonuses;
+        _field.Enemies.SetPlayer(_playerObject);
     }
     
     private void ShowLabel(string text)
@@ -134,7 +135,7 @@ public class Game : MonoBehaviour
         _labelObject = Instantiate(uISplashTextPrefab, new Vector3(IcwGame.SizeX / 2.0f, IcwGame.SizeY / 2.0f , 0), 
             Quaternion.identity, transform);
         var textObject = _labelObject.GetComponent<UiLabel>();
-        textObject.SetText(text);
+        textObject.SetText(text, true);
     }
 
     private void ShowSplashScreen()

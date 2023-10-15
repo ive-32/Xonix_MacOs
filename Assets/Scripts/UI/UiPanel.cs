@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 public class UiPanel : MonoBehaviour
 {
@@ -17,7 +13,7 @@ public class UiPanel : MonoBehaviour
     public void OnClick()
     { 
         OnClickMethod?.Invoke();
-        Destroy(this.GameObject());
+        Destroy(this.gameObject);
     }
 
     public void SetMainText(string text)

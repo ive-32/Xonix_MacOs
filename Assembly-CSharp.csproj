@@ -47,24 +47,27 @@
   <ItemGroup>
      <Compile Include="Assets/Scripts/Bonuses/FieldShieldBonus.cs" />
      <Compile Include="Assets/Scripts/IcwGame.cs" />
-     <Compile Include="Assets/Scripts/MainCamera.cs" />
      <Compile Include="Assets/Scripts/Bonuses/SpeedUpBonus.cs" />
+     <Compile Include="Assets/Scripts/MainCamera.cs" />
      <Compile Include="Assets/Scripts/UI/UiLabel.cs" />
+     <Compile Include="Assets/Scripts/Enemies/SlitherEnemy.cs" />
      <Compile Include="Assets/Scripts/Extensions/AttributeExtensions.cs" />
      <Compile Include="Assets/Scripts/Field/TraceTile.cs" />
      <Compile Include="Assets/Scripts/Bonuses/BaseBonus.cs" />
+     <Compile Include="Assets/Scripts/Tools/Neghbours.cs" />
      <Compile Include="Assets/Scripts/UI/UiPanel.cs" />
      <Compile Include="Assets/Scripts/Enums/BonusType.cs" />
-     <Compile Include="Assets/Scripts/Tools.cs" />
+     <Compile Include="Assets/Scripts/Tools/Tools.cs" />
      <Compile Include="Assets/Scripts/Game.cs" />
      <Compile Include="Assets/Scripts/Bonuses/Bonuses.cs" />
      <Compile Include="Assets/Scripts/Enums/GameState.cs" />
      <Compile Include="Assets/Scripts/Player.cs" />
      <Compile Include="Assets/Scripts/Enums/BonusState.cs" />
-     <Compile Include="Assets/Scripts/Extensions/Vector3Extensions.cs" />
      <Compile Include="Assets/Scripts/Enemies/DestroyerEnemy.cs" />
+     <Compile Include="Assets/Scripts/Attributes/LabelAttribute.cs" />
      <Compile Include="Assets/Scripts/Enemies/BaseEnemy.cs" />
      <Compile Include="Assets/Scripts/Field/Field.cs" />
+     <Compile Include="Assets/Scripts/Extesions/EnumExtensions.cs" />
      <Compile Include="Assets/Scripts/Attributes/GroundAttribute.cs" />
      <Compile Include="Assets/Scripts/Enums/EnemyType.cs" />
      <Compile Include="Assets/Scripts/Enemies/SuperDestroyerEnemy.cs" />
@@ -93,6 +96,7 @@
      <Folder Include="Assets/TextMesh Pro/Resources" />
      <Folder Include="Assets/Scripts/Enemies" />
      <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader" />
+     <Folder Include="Assets/Scripts/Tools" />
      <Folder Include="Assets/TextMesh Pro" />
      <Folder Include="Assets/Scripts" />
      <Folder Include="Assets/Scripts/Field" />
@@ -101,6 +105,7 @@
      <None Include="Assets/TextMesh Pro/Shaders/TMP_Bitmap-Custom-Atlas.shader" />
      <Folder Include="Assets/Animations" />
      <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF.shader" />
+     <Folder Include="Assets/Scripts/Extesions" />
      <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile SSD.shader" />
      <Folder Include="Assets/Sprites" />
      <None Include="Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt" />

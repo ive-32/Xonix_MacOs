@@ -1,7 +1,7 @@
 public enum BonusType
 {
-    Empty = 0,
-    BorderShield = 1,
-    FieldShield = 2,
-    SpeedUp = 3
+    [Label("Empty")] Empty = 0,
+    [Label("Unbreakable trail!")] BorderShield = 1,
+    [Label("Strong trail!")] FieldShield = 2,
+    [Label("Speed up!")] SpeedUp = 3
 }
