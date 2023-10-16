@@ -20,8 +20,12 @@ public class Enemies : MonoBehaviour
         else
         {
             AddEnemy(EnemyType.BaseEnemy);
+            AddEnemy(EnemyType.BaseEnemy);
+            AddEnemy(EnemyType.BaseEnemy);
+            AddEnemy(EnemyType.Destroyer);
             AddEnemy(EnemyType.Destroyer);
             AddEnemy(EnemyType.SuperDestroyer);
+            AddEnemy(EnemyType.Slither);
             AddEnemy(EnemyType.Slither);
         }
     }
