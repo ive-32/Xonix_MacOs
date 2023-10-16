@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets/Scripts/Bonuses/FieldShieldBonus.cs" />
+     <Compile Include="Assets/Scripts/Enums/RotationType.cs" />
      <Compile Include="Assets/Scripts/IcwGame.cs" />
      <Compile Include="Assets/Scripts/Bonuses/SpeedUpBonus.cs" />
      <Compile Include="Assets/Scripts/MainCamera.cs" />

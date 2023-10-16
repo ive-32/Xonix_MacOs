@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,6 +8,7 @@ public class SlitherEnemy : BaseEnemy
 {
     private Vector2Int _currentTile;
     private Vector2Int _direction;
+    [NonSerialized] public RotationType RotationType = RotationType.RotationLeft;
     
     protected override void Start()
     {
@@ -57,13 +59,14 @@ public class SlitherEnemy : BaseEnemy
                 if (_direction == Vector2Int.zero)
                     GetDirection();
 
-                var neighbourTileType = Field.GetTileType(_currentTile + _direction.RotateToLeft());
+                var neighbourTileType = Field.GetTileType(_currentTile + GetPositiveRotation(_direction));
                 var counter = 0;
 
                 while (!neighbourTileType.IsGround() && counter < 5)
                 {
-                    _direction = _direction.RotateToLeft();
-                    neighbourTileType = Field.GetTileType(_currentTile + _direction + _direction.RotateToLeft());
+                    _direction = GetPositiveRotation(_direction);
+                    
+                    neighbourTileType = Field.GetTileType(_currentTile + _direction + GetPositiveRotation(_direction));
                     counter++;
                 }
 
@@ -74,7 +77,8 @@ public class SlitherEnemy : BaseEnemy
                 var targetTileType = Field.GetTileType(_currentTile + _direction);
                 while (targetTileType.IsGround() && counter < 5)
                 {
-                    _direction = _direction.RotateToRight();
+                    _direction = GetNegativeRotation(_direction);
+                    
                     targetTileType = Field.GetTileType(_currentTile + _direction);
                     counter++;
                 }
@@ -93,7 +97,10 @@ public class SlitherEnemy : BaseEnemy
         } while (frameWholeStep > atomicStep);
         
         transform.SetPositionAndRotation(currentPosition,
-            transform.rotation * Quaternion.AngleAxis(360 * Time.deltaTime * IcwGame.GameSpeed / IcwGame.DefaultGameSpeed, Vector3.forward));
+            transform.rotation * Quaternion.AngleAxis(360 * Time.deltaTime * IcwGame.GameSpeed / IcwGame.DefaultGameSpeed, 
+                RotationType == RotationType.RotationLeft 
+                    ? Vector3.forward
+                    : Vector3.back));
     }
     
     private void GetDirection()
@@ -105,10 +112,19 @@ public class SlitherEnemy : BaseEnemy
             var neighbourTile = _currentTile + neighbour;
             if (!neighbourTile.IsPositionValid() || !Field.GetTileType(neighbourTile).IsGround()) continue;
 
-            _direction = (_currentTile - neighbourTile).RotateToLeft();
+            _direction = GetPositiveRotation(_currentTile - neighbourTile);
             break;
         }
-
     }
+    
+    private Vector2Int GetPositiveRotation(Vector2Int direction)
+        => RotationType == RotationType.RotationLeft 
+            ? direction.RotateToLeft()
+            : direction.RotateToRight();
+
+    private Vector2Int GetNegativeRotation(Vector2Int direction)
+        => RotationType == RotationType.RotationLeft 
+            ? direction.RotateToRight()
+            : direction.RotateToLeft();
 
 }

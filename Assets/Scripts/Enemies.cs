@@ -8,6 +8,7 @@ public class Enemies : MonoBehaviour
     public List<GameObject> enemiesPrefabs = new ();
     [NonSerialized] public Field Field;
     private GameObject _player;
+    private int _slitherCount = 0;
     
     // Start is called before the first frame update
     void Start()
@@ -57,6 +58,12 @@ public class Enemies : MonoBehaviour
         var enemy = enemyObject.GetComponent<BaseEnemy>();
         enemy.Field = Field;
         enemy.Player = _player;
+        
+        if (enemyType == EnemyType.Slither && enemy is SlitherEnemy slitherEnemy)
+        {
+            slitherEnemy.RotationType = (RotationType)(_slitherCount % 2);
+            _slitherCount++;
+        }
     }
 
 }
