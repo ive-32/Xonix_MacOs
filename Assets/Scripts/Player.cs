@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -7,6 +9,10 @@ public class Player : MonoBehaviour
 
     private Vector3 _lastGroundPosition = Vector3.zero;
     private bool _playerIsKilled = false;
+    private const float DefaultTimeToAppear = 5.0f;
+    private float _timeToAppear = DefaultTimeToAppear;
+    private float _timeForUnbreakable = DefaultTimeToAppear;
+    private bool _isFloating = false;
     
     private Vector3 _currentTilePosition;
     private Vector2Int _currentTilePositionInt;
@@ -20,6 +26,7 @@ public class Player : MonoBehaviour
     [NonSerialized] public Field Field;
     [NonSerialized] public TileType TraceTile = TileType.Trace;
     [NonSerialized] public Bonuses Bonuses;
+    [NonSerialized] public List<SlitherEnemy> slitherEnemies = new List<SlitherEnemy>();
 
     private AnimationClip _playerAppear;
     private AnimationClip _playerDisappear;
@@ -37,20 +44,23 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        _playerAnimation.Rewind();
-        _playerAnimation.clip = _playerAppear;
-        _playerAnimation.Play();
         _lastGroundPosition = _startPosition;
+        SetUpNewPlayer();
     }
 
     public void Update()
     {
+        if (_timeForUnbreakable > 0) 
+            _timeForUnbreakable -= Time.deltaTime;
+        
         if (_playerIsKilled)
         {
-            if (Field.HasTraceTiles()) return;
-            _playerIsKilled = false;
+            if (_timeToAppear > 0)
+                _timeToAppear -= Time.deltaTime;
             
-            PlayerKilled();
+            if (Field.HasTraceTiles()) return;
+            
+            SetUpNewPlayer();
         }
         
         _minimalDelta = Time.deltaTime * IcwGame.GameSpeed * PlayerSpeed;
@@ -78,12 +88,14 @@ public class Player : MonoBehaviour
 
         }
 
-        if (!IsOnGround() && Field.GetTileType(_currentTilePositionInt) == TileType.Empty)
+        if (_isFloating && Field.GetTileType(_currentTilePositionInt) == TileType.Empty)
         {
-            _playerIsKilled = true;
-            _playerAnimation.clip = _playerDisappear;
-            _playerAnimation.Play();
+            KillPlayer();
+            return;
         }
+
+        if (slitherEnemies.Any(e => (transform.position - e.transform.position).magnitude <= 1.3f) && _timeForUnbreakable <= 0)
+            KillPlayer();
         
         var position = transform.position + (Vector3) _currentDirection * 
             (Time.deltaTime * IcwGame.GameSpeed * PlayerSpeed); 
@@ -92,29 +104,38 @@ public class Player : MonoBehaviour
 
     public void KillPlayer()
     {
+        if (_playerIsKilled) return;
+
         _playerIsKilled = true;
-        _lastGroundPosition = _startPosition;
+        _isFloating = false;
+        _timeToAppear = DefaultTimeToAppear;
+        StopPlayer();
+        IcwGame.Lives--;
+        _playerAnimation.Rewind();
+        _playerAnimation.clip = _playerDisappear;
+        _playerAnimation.Play();
     }
     
-    private void PlayerKilled()
+    private void SetUpNewPlayer()
     {
         transform.SetPositionAndRotation(_lastGroundPosition, Quaternion.identity);
         _currentTilePosition = _lastGroundPosition;
-        StopPlayer();
         _lastGroundPosition = _startPosition;
+        StopPlayer();
         _playerAnimation.Rewind();
         _playerAnimation.clip = _playerAppear;
         _playerAnimation.Play();
-        IcwGame.Lives--;
+        _playerIsKilled = false;
+        _isFloating = false;
+        _timeForUnbreakable = 2 / (IcwGame.GameSpeed * slitherEnemies.FirstOrDefault()?.EnemySpeed ?? 100);
     }
+    
     
     private void PlayerReachNewTile(Vector3 newPosition, Vector3 oldPosition)
     {
         var newFieldPos = new Vector2Int(Mathf.RoundToInt(newPosition.x), Mathf.RoundToInt(newPosition.y));
-        var oldFieldPos = new Vector2Int(Mathf.RoundToInt(oldPosition.x), Mathf.RoundToInt(oldPosition.y));
         _currentTilePositionInt = newFieldPos;
         
-        var oldTile = Field.GetTileType(oldFieldPos);
         var newTile = Field.GetTileType(newFieldPos);
         var nextNewTile = Field.GetTileType(newFieldPos + Vector2Int.RoundToInt(_direction));
 
@@ -125,13 +146,17 @@ public class Player : MonoBehaviour
         }
         
         // step from ground
-        if (IsOnGround() && newTile == TileType.Empty)
+        if (!_isFloating && newTile == TileType.Empty)
+        {
             _lastGroundPosition = oldPosition;
+            _isFloating = true;
+        }
         
         // return to ground
-        if (!IsOnGround() && newTile.IsGround())
+        if (_isFloating && newTile.IsGround())
         {
-            _lastGroundPosition = Vector3.zero;
+            _isFloating = false;
+            _lastGroundPosition = _startPosition;
             StopPlayer();
             Field.FillFieldAfterFlow();
         }
@@ -173,8 +198,4 @@ public class Player : MonoBehaviour
 
         return direction;
     }
-    
-    public bool IsOnGround()
-        => _lastGroundPosition == Vector3.zero;
-    
 }

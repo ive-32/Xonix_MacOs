@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,7 +13,6 @@ public class SlitherEnemy : BaseEnemy
         base.Start();
         var availablePositions = new List<Vector2Int>(200);
         
-        //get all available StartPositions
         for (var i = 0; i < IcwGame.SizeX; i++)
         for (var j = 0; j < IcwGame.SizeY; j++)
         {
@@ -38,9 +36,7 @@ public class SlitherEnemy : BaseEnemy
         GetDirection();
         EnemySpeed = 1.0f;
     }
-
-
-
+    
     protected override void Update()
     {
         var currentPosition = transform.position;
@@ -89,30 +85,15 @@ public class SlitherEnemy : BaseEnemy
                 if (oldDirection != _direction)
                     currentPosition = _currentTile.ToVector3();
 
-                TryToHitPlayer();
+                if (Field.GetTileType(_currentTile) == TileType.Trace)
+                    Field.HitTraceTile(_currentTile);
             }
 
             currentPosition += _direction.ToVector3() * currentStep;
         } while (frameWholeStep > atomicStep);
         
         transform.SetPositionAndRotation(currentPosition,
-            transform.rotation * Quaternion.AngleAxis(360 * Time.deltaTime, Vector3.forward));
-    }
-
-    private void TryToHitPlayer()
-    {
-        if (Field.GetTileType(_currentTile) == TileType.Trace)
-            Field.HitTraceTile(_currentTile);
-
-        if (Player is null) return;
-        
-        var playerPos = Player.transform.position.GetCenterTile2Int();
-        foreach (var neighbour in Neghbours.Vector2INT)
-        {
-            var pos = neighbour + _currentTile;
-            if (pos == playerPos)
-                Player.GetComponent<Player>()?.KillPlayer();
-        }
+            transform.rotation * Quaternion.AngleAxis(360 * Time.deltaTime * IcwGame.GameSpeed / IcwGame.DefaultGameSpeed, Vector3.forward));
     }
     
     private void GetDirection()
@@ -124,7 +105,7 @@ public class SlitherEnemy : BaseEnemy
             var neighbourTile = _currentTile + neighbour;
             if (!neighbourTile.IsPositionValid() || !Field.GetTileType(neighbourTile).IsGround()) continue;
 
-            _direction = (_currentTile - neighbourTile).RotateToRight();
+            _direction = (_currentTile - neighbourTile).RotateToLeft();
             break;
         }
 

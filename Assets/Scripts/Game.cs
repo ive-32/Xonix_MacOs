@@ -14,6 +14,7 @@ public class Game : MonoBehaviour
     [FormerlySerializedAs("bonuses")]public GameObject bonusesPrefab;
 
     private Field _field;
+    private Enemies _enemies;
     private Bonuses _bonuses;
     private GameObject _scoresLabel;
     private GameObject _livesLabel;
@@ -100,11 +101,11 @@ public class Game : MonoBehaviour
 
         _field = fieldObject.GetComponent<Field>();
         _bonuses = bonusesObject.GetComponent<Bonuses>();
-        _field.Enemies = enemiesObject.GetComponent<Enemies>();
+        _enemies = enemiesObject.GetComponent<Enemies>();
+        _field.Enemies = _enemies;
         _field.SplashTextPrefab = uISplashTextPrefab;
         
-        var enemies = enemiesObject.GetComponent<Enemies>();
-        enemies.Field = _field;
+        _enemies.Field = _field;
         _bonuses.SplashTextPrefab = uISplashTextPrefab;
         
         _scoresLabel = Instantiate(uILabelPrefab, new Vector3(3, IcwGame.SizeY, 0), Quaternion.identity, transform);
@@ -127,6 +128,12 @@ public class Game : MonoBehaviour
         var player = _playerObject.GetComponent<Player>();
         player.Field = _field;
         player.Bonuses = _bonuses;
+        for (var i = 0; i < _enemies.transform.childCount; i++)
+        {
+            var enemy = _enemies.transform.GetChild(i).GetComponent<BaseEnemy>();
+            if (enemy is SlitherEnemy)
+                player.slitherEnemies.Add(enemy as SlitherEnemy);
+        }
         _field.Enemies.SetPlayer(_playerObject);
     }
     
