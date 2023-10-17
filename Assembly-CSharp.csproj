@@ -77,6 +77,7 @@
      <Compile Include="Assets/Scripts/UI/UiSplashLabel.cs" />
      <Compile Include="Assets/Scripts/Enemies.cs" />
      <Compile Include="Assets/Scripts/Enums/TileType.cs" />
+     <Compile Include="Assets/Scripts/Enemies/ClimberEnemy.cs" />
      <Compile Include="Assets/Scripts/Field/FieldMeta.cs" />
      <Compile Include="Assets/Scripts/Field/FieldTile.cs" />
      <Folder Include="Assets" />

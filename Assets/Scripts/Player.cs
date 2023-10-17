@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
     [NonSerialized] public Field Field;
     [NonSerialized] public TileType TraceTile = TileType.Trace;
     [NonSerialized] public Bonuses Bonuses;
-    [NonSerialized] public List<SlitherEnemy> slitherEnemies = new List<SlitherEnemy>();
+    [NonSerialized] public List<ClimberEnemy> ContactEnemies = new List<ClimberEnemy>();
 
     private AnimationClip _playerAppear;
     private AnimationClip _playerDisappear;
@@ -94,7 +94,7 @@ public class Player : MonoBehaviour
             return;
         }
 
-        if (slitherEnemies.Any(e => (transform.position - e.transform.position).magnitude <= 1.3f) && _timeForUnbreakable <= 0)
+        if (ContactEnemies.Any(e => (transform.position - e.transform.position).magnitude <= 1.3f) && _timeForUnbreakable <= 0)
             KillPlayer();
         
         var position = transform.position + (Vector3) _currentDirection * 
@@ -127,7 +127,7 @@ public class Player : MonoBehaviour
         _playerAnimation.Play();
         _playerIsKilled = false;
         _isFloating = false;
-        _timeForUnbreakable = 2 / (IcwGame.GameSpeed * slitherEnemies.FirstOrDefault()?.EnemySpeed ?? 100);
+        _timeForUnbreakable = 2 / (IcwGame.GameSpeed * ContactEnemies.FirstOrDefault()?.EnemySpeed ?? 100);
     }
     
     

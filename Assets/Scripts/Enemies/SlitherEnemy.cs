@@ -1,130 +1,132 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
-public class SlitherEnemy : BaseEnemy
+public class SlitherEnemy : ClimberEnemy
 {
-    private Vector2Int _currentTile;
-    private Vector2Int _direction;
-    [NonSerialized] public RotationType RotationType = RotationType.RotationLeft;
+    private class Pod
+    {
+        public GameObject PodObject;
+        public Vector3 Direction;
+        public float Speed;
+        public Vector3 Posititon;
+    }
+    
+    
+    private Transform slitherBody;
+
+    private GameObject _body;
+    private GameObject _podForward;
+    private GameObject _podBackward;
+    private Vector3 _bodyPosition;
+    private Vector3 _previousPosition;
+    private bool _movingBody;
+    private const float _podLegth = 0.5f;
+    private int _mainAngle;
+    private Vector3 _forwardPodPosition;
+    private Vector3 _backwardPodPosition;
+    private List<Pod> _pods = new List<Pod>();
+    
     
     protected override void Start()
     {
         base.Start();
-        var availablePositions = new List<Vector2Int>(200);
+        EnemySpeed = 0.5f;
+        _body = transform.Find("Body")?.gameObject;
+
+        _podForward = transform.Find("PseudoPod_Forward")?.gameObject;
+        _podBackward = transform.Find("PseudoPod_Backward")?.gameObject;
         
-        for (var i = 0; i < IcwGame.SizeX; i++)
-        for (var j = 0; j < IcwGame.SizeY; j++)
+        for (var i = 0; i < transform.childCount; i++)
         {
-            var tile = Field.GetTileType(i, j);
-            if (!tile.IsGround()) continue;
-            
-            foreach (var neighbour in Neghbours.Vector2INT)
+            var pod = transform.GetChild(i);
+            if (pod.name == "PseudoPod")
             {
-                var position = new Vector2Int(i + neighbour.x, j + neighbour.y);
-                if (position.IsPositionValid() && Field.GetTileType(position) == TileType.Empty)
-                    availablePositions.Add(position);
+                //var direction = Random.insideUnitCircle.normalized;
+                //var direction = Quaternion.AngleAxis(180.0f / (transform.childCount - 3) + 225, Vector3.forward) * Vector3.left;
+                var direction = transform.rotation * Vector3.left;
+                _pods.Add(new Pod()
+                {
+                    PodObject = pod.gameObject,
+                    Direction = direction, 
+                    Speed = Random.Range(0.1f, 0.3f),
+                    Posititon = direction * _podLegth
+                });
+                
             }
         }
 
-        if (!availablePositions.Any())
-            Destroy(this.gameObject);
-        
-        var index = Random.Range(0, availablePositions.Count);
-        transform.localPosition = new Vector3(availablePositions[index].x, availablePositions[index].y, 0);
-        _currentTile = availablePositions[index];
-        GetDirection();
-        EnemySpeed = 1.0f;
-    }
+        _bodyPosition = Vector3.zero;
+        _forwardPodPosition = _bodyPosition + new Vector3(-_podLegth, 0, 0);
+        _backwardPodPosition = _bodyPosition + new Vector3(_podLegth, 0, 0);
+        _previousPosition = transform.position;
+    } 
     
     protected override void Update()
     {
-        var currentPosition = transform.position;
-        var frameWholeStep = Time.deltaTime * IcwGame.GameSpeed * EnemySpeed;
-        const float atomicStep = 0.5f;
-        do
+        base.Update();
+        var glueTo = GetPositiveRotation(_direction);
+        _mainAngle = GetAngleFromDirection(glueTo);
+        transform.rotation = Quaternion.AngleAxis(_mainAngle, Vector3.forward);
+        UpdateBody();
+    }
+
+    private void UpdateBody()
+    {
+        var globalPos = transform.position;
+        var step = (globalPos - _previousPosition).magnitude;
+
+        if (step > _podLegth)
         {
-            var currentStep = frameWholeStep > atomicStep ? atomicStep : frameWholeStep;
+            _movingBody = !_movingBody;
+            _previousPosition = globalPos;
+        }
 
-            frameWholeStep -= currentStep;
+        if (_movingBody)
+        {
+            var bodyStep = new Vector3(-1, 0, 0) * (Time.deltaTime * EnemySpeed * 5);
+            _bodyPosition += bodyStep;
+            _forwardPodPosition -= bodyStep;
+        }
+        else
+        {
+            _forwardPodPosition = new Vector3(-_podLegth, 0, 0);
+            _bodyPosition = new Vector3(step, -0.3f, 0);
+            _backwardPodPosition = _bodyPosition + new Vector3(_podLegth, 0, 0);
+        }
+        
+        _body.transform.localPosition = _bodyPosition;
+        _podForward.transform.localPosition = _bodyPosition;
+        _podBackward.transform.localPosition = _bodyPosition;
+        _podForward.transform.localScale = new Vector3((_bodyPosition - _forwardPodPosition).magnitude / _podLegth, 1, 1);
+        _podBackward.transform.localScale = new Vector3((_bodyPosition - _backwardPodPosition).magnitude / _podLegth, 1, 1);
+        
+        foreach (var pod in _pods)
+        {
+            pod.PodObject.transform.localPosition = _bodyPosition;
+            var podLenght = pod.Posititon.magnitude; 
+            if (podLenght > _podLegth * 1.5f)
+                pod.Direction = -pod.Direction;
 
-            var targetTile = _currentTile + _direction;
-            if (currentPosition.ReachCenterTile(targetTile, _direction)) 
+            if (podLenght < _podLegth * 0.5f)
             {
-                _currentTile = currentPosition.GetCenterTile2Int();
-
-                var oldDirection = _direction;
-                if (_direction == Vector2Int.zero)
-                    GetDirection();
-
-                var neighbourTileType = Field.GetTileType(_currentTile + GetPositiveRotation(_direction));
-                var counter = 0;
-
-                while (!neighbourTileType.IsGround() && counter < 5)
-                {
-                    _direction = GetPositiveRotation(_direction);
-                    
-                    neighbourTileType = Field.GetTileType(_currentTile + _direction + GetPositiveRotation(_direction));
-                    counter++;
-                }
-
-                if (counter == 5)
-                    _direction = Vector2Int.zero;
-
-                counter = 0;
-                var targetTileType = Field.GetTileType(_currentTile + _direction);
-                while (targetTileType.IsGround() && counter < 5)
-                {
-                    _direction = GetNegativeRotation(_direction);
-                    
-                    targetTileType = Field.GetTileType(_currentTile + _direction);
-                    counter++;
-                }
-
-                if (counter == 5)
-                    _direction = Vector2Int.zero;
-
-                if (oldDirection != _direction)
-                    currentPosition = _currentTile.ToVector3();
-
-                if (Field.GetTileType(_currentTile) == TileType.Trace)
-                    Field.HitTraceTile(_currentTile);
+                pod.Direction = -pod.Direction;
+                pod.Speed = Random.Range(0.3f, 1f);
             }
 
-            currentPosition += _direction.ToVector3() * currentStep;
-        } while (frameWholeStep > atomicStep);
-        
-        transform.SetPositionAndRotation(currentPosition,
-            transform.rotation * Quaternion.AngleAxis(360 * Time.deltaTime * IcwGame.GameSpeed / IcwGame.DefaultGameSpeed, 
-                RotationType == RotationType.RotationLeft 
-                    ? Vector3.forward
-                    : Vector3.back));
-    }
-    
-    private void GetDirection()
-    {
-        _direction = Vector2Int.right;
-        
-        foreach (var neighbour in Neghbours.Vector2INT)
-        {
-            var neighbourTile = _currentTile + neighbour;
-            if (!neighbourTile.IsPositionValid() || !Field.GetTileType(neighbourTile).IsGround()) continue;
+            pod.Posititon += pod.Direction * (pod.Speed * Time.deltaTime);
 
-            _direction = GetPositiveRotation(_currentTile - neighbourTile);
-            break;
+            pod.PodObject.transform.localScale = new Vector3(podLenght / _podLegth, 1, 1);
         }
+        
     }
     
-    private Vector2Int GetPositiveRotation(Vector2Int direction)
-        => RotationType == RotationType.RotationLeft 
-            ? direction.RotateToLeft()
-            : direction.RotateToRight();
-
-    private Vector2Int GetNegativeRotation(Vector2Int direction)
-        => RotationType == RotationType.RotationLeft 
-            ? direction.RotateToRight()
-            : direction.RotateToLeft();
-
+    private static int GetAngleFromDirection(Vector2Int direction)
+    {
+        if (direction == Vector2Int.left) return 270;
+        if (direction == Vector2Int.up) return 180;
+        if (direction == Vector2Int.right) return 90;
+        if (direction == Vector2Int.down) return 0;
+        
+        return 0;
+    }
 }

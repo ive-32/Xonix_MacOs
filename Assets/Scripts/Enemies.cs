@@ -8,7 +8,7 @@ public class Enemies : MonoBehaviour
     public List<GameObject> enemiesPrefabs = new ();
     [NonSerialized] public Field Field;
     private GameObject _player;
-    private int _slitherCount = 0;
+    private int _climbersCount = 0;
     
     // Start is called before the first frame update
     void Start()
@@ -26,8 +26,8 @@ public class Enemies : MonoBehaviour
             AddEnemy(EnemyType.Destroyer);
             AddEnemy(EnemyType.Destroyer);
             AddEnemy(EnemyType.SuperDestroyer);
-            AddEnemy(EnemyType.Slither);
-            AddEnemy(EnemyType.Slither);
+            AddEnemy(EnemyType.Climber);
+            AddEnemy(EnemyType.Climber);
         }
     }
 
@@ -48,7 +48,8 @@ public class Enemies : MonoBehaviour
             EnemyType.BaseEnemy => enemiesPrefabs[0],
             EnemyType.Destroyer => enemiesPrefabs[1],
             EnemyType.SuperDestroyer => enemiesPrefabs[2],
-            EnemyType.Slither => enemiesPrefabs[3],
+            EnemyType.Climber => enemiesPrefabs[3],
+            EnemyType.Slither => enemiesPrefabs[4],
             _ => enemiesPrefabs[0]
         };
 
@@ -59,10 +60,10 @@ public class Enemies : MonoBehaviour
         enemy.Field = Field;
         enemy.Player = _player;
         
-        if (enemyType == EnemyType.Slither && enemy is SlitherEnemy slitherEnemy)
+        if (enemyType == EnemyType.Climber && enemy is ClimberEnemy climberEnemy)
         {
-            slitherEnemy.RotationType = (RotationType)(_slitherCount % 2);
-            _slitherCount++;
+            climberEnemy.RotationType = (RotationType)(_climbersCount % 2);
+            _climbersCount++;
         }
     }
 
