@@ -51,7 +51,6 @@
      <Compile Include="Assets/Scripts/Bonuses/SpeedUpBonus.cs" />
      <Compile Include="Assets/Scripts/MainCamera.cs" />
      <Compile Include="Assets/Scripts/UI/UiLabel.cs" />
-     <Compile Include="Assets/Scripts/Enemies/SlitherEnemy.cs" />
      <Compile Include="Assets/Scripts/Extensions/AttributeExtensions.cs" />
      <Compile Include="Assets/Scripts/Field/TraceTile.cs" />
      <Compile Include="Assets/Scripts/Bonuses/BaseBonus.cs" />
@@ -79,6 +78,7 @@
      <Compile Include="Assets/Scripts/UI/UiSplashLabel.cs" />
      <Compile Include="Assets/Scripts/Enemies.cs" />
      <Compile Include="Assets/Scripts/Enums/TileType.cs" />
+     <Compile Include="Assets/Scripts/Enemies/ClimberEnemy.cs" />
      <Compile Include="Assets/Scripts/Field/FieldMeta.cs" />
      <Compile Include="Assets/Scripts/Field/FieldTile.cs" />
      <Folder Include="Assets" />
