@@ -64,7 +64,7 @@ public class SlitherEnemy : ClimberEnemy
     protected override void Update()
     {
         base.Update();
-        var glueTo = GetPositiveRotation(_direction);
+        var glueTo = GetPositiveRotation(Direction2Int);
         _mainAngle = GetAngleFromDirection(glueTo);
         transform.rotation = Quaternion.AngleAxis(_mainAngle, Vector3.forward);
         UpdateBody();

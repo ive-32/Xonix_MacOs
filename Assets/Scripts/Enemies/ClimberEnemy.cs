@@ -6,8 +6,9 @@ using Random = UnityEngine.Random;
 
 public class ClimberEnemy : BaseEnemy
 {
-    private Vector2Int _currentTile;
-    protected Vector2Int _direction;
+    private Vector3 _targetTilePoint;
+    protected Vector2Int Direction2Int;
+    
     [NonSerialized] public RotationType RotationType = RotationType.RotationLeft;
     
     protected override void Start()
@@ -30,93 +31,39 @@ public class ClimberEnemy : BaseEnemy
         }
 
         if (!availablePositions.Any())
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         
         var index = Random.Range(0, availablePositions.Count);
-        transform.localPosition = new Vector3(availablePositions[index].x, availablePositions[index].y, 0);
-        _currentTile = availablePositions[index];
-        GetDirection();
+        _targetTilePoint = new Vector3(availablePositions[index].x, availablePositions[index].y, 0);
+        transform.localPosition = _targetTilePoint;
+        Direction2Int = GetNextClimbDirection(availablePositions[index], Direction2Int);
         EnemySpeed = 1.0f;
     }
     
     protected override void Update()
     {
-        var currentPosition = transform.position;
-        var frameWholeStep = Time.deltaTime * IcwGame.GameSpeed * EnemySpeed;
-        const float atomicStep = 0.5f;
-        do
+        var position = transform.position;
+        var step = Direction2Int.ToVector3() * (Time.deltaTime * EnemySpeed * IcwGame.GameSpeed);
+        var stepToTargetPoint = _targetTilePoint - position;
+
+        if (step.magnitude >= stepToTargetPoint.magnitude)
         {
-            var currentStep = frameWholeStep > atomicStep ? atomicStep : frameWholeStep;
-
-            frameWholeStep -= currentStep;
-
-            var targetTile = _currentTile + _direction;
-            if (currentPosition.ReachCenterTile(targetTile, _direction)) 
-            {
-                _currentTile = currentPosition.GetCenterTile2Int();
-
-                var oldDirection = _direction;
-                if (_direction == Vector2Int.zero)
-                    GetDirection();
-
-                var neighbourTileType = Field.GetTileType(_currentTile + GetPositiveRotation(_direction));
-                var counter = 0;
-
-                while (!neighbourTileType.IsGround() && counter < 5)
-                {
-                    _direction = GetPositiveRotation(_direction);
-                    
-                    neighbourTileType = Field.GetTileType(_currentTile + _direction + GetPositiveRotation(_direction));
-                    counter++;
-                }
-
-                if (counter == 5)
-                    _direction = Vector2Int.zero;
-
-                counter = 0;
-                var targetTileType = Field.GetTileType(_currentTile + _direction);
-                while (targetTileType.IsGround() && counter < 5)
-                {
-                    _direction = GetNegativeRotation(_direction);
-                    
-                    targetTileType = Field.GetTileType(_currentTile + _direction);
-                    counter++;
-                }
-
-                if (counter == 5)
-                    _direction = Vector2Int.zero;
-
-                if (oldDirection != _direction)
-                    currentPosition = _currentTile.ToVector3();
-
-                if (Field.GetTileType(_currentTile) == TileType.Trace)
-                    Field.HitTraceTile(_currentTile);
-            }
-
-            currentPosition += _direction.ToVector3() * currentStep;
-        } while (frameWholeStep > atomicStep);
+            var currentTile = position.GetCenterTile2Int();
+            step = stepToTargetPoint;
+            Direction2Int = GetNextClimbDirection(currentTile, Direction2Int);
+            _targetTilePoint = (currentTile + Direction2Int).ToVector3();
+            
+            if (Field.GetTileType(currentTile) == TileType.Trace)
+                Field.HitTraceTile(currentTile);
+        }
         
-        transform.SetPositionAndRotation(currentPosition,
+        transform.SetPositionAndRotation(position + step,
             transform.rotation * Quaternion.AngleAxis(360 * Time.deltaTime * IcwGame.GameSpeed / IcwGame.DefaultGameSpeed, 
                 RotationType == RotationType.RotationLeft 
                     ? Vector3.forward
                     : Vector3.back));
     }
-    
-    private void GetDirection()
-    {
-        _direction = Vector2Int.right;
-        
-        foreach (var neighbour in Neghbours.Vector2INT)
-        {
-            var neighbourTile = _currentTile + neighbour;
-            if (!neighbourTile.IsPositionValid() || !Field.GetTileType(neighbourTile).IsGround()) continue;
 
-            _direction = GetPositiveRotation(_currentTile - neighbourTile);
-            break;
-        }
-    }
-    
     protected Vector2Int GetPositiveRotation(Vector2Int direction)
         => RotationType == RotationType.RotationLeft 
             ? direction.RotateToLeft()
@@ -127,4 +74,52 @@ public class ClimberEnemy : BaseEnemy
             ? direction.RotateToRight()
             : direction.RotateToLeft();
 
+    protected Vector2Int GetNextClimbDirection(Vector2Int currentTile, Vector2Int direction)
+    {
+        TileType forwardTileType;
+        TileType neighbourTileType;
+        var counter = 0;
+
+        if (direction == Vector2Int.zero)
+        {
+            direction = Vector2Int.left;
+
+            forwardTileType = Field.GetTileType(currentTile + direction);
+            neighbourTileType = Field.GetTileType(currentTile + GetPositiveRotation(direction));
+
+            while ((forwardTileType.IsGround() || !neighbourTileType.IsGround()) && counter < 4)
+            {
+                direction = GetPositiveRotation(direction);
+                forwardTileType = Field.GetTileType(currentTile + direction);
+                neighbourTileType = Field.GetTileType(currentTile + GetPositiveRotation(direction));
+                counter++;
+            }
+
+            if (counter == 4)
+                return Vector2Int.zero;
+        }
+
+        counter = 0;
+        neighbourTileType = Field.GetTileType(currentTile + GetPositiveRotation(direction));
+        while (!neighbourTileType.IsGround() && counter < 4)
+        {
+            direction = GetPositiveRotation(direction);
+            neighbourTileType = Field.GetTileType(currentTile + direction + GetPositiveRotation(direction));
+            counter++;
+        }
+
+        if (counter == 4)
+            return Vector2Int.zero;
+
+        counter = 0;
+        forwardTileType = Field.GetTileType(currentTile + direction);
+        while (forwardTileType.IsGround() && counter < 4)
+        {
+            direction = GetNegativeRotation(direction);
+            forwardTileType = Field.GetTileType(currentTile + direction);
+            counter++;
+        }
+        
+        return counter == 4 ? Vector2Int.zero: direction;
+    }
 }

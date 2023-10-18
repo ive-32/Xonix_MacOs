@@ -19,6 +19,14 @@ public static class Tools
         return Vector2.Angle(centerTile - (Vector2)pos, direction) > Mathf.Epsilon;
     }
 
+    public static bool ReachTargetPoint(this Vector3 pos, Vector3 targetPoint, Vector3 direction)
+    {
+        if ((pos - targetPoint).magnitude < Mathf.Epsilon) return true;
+        if (direction == Vector3.zero) return false;
+
+        return Vector3.Angle(targetPoint - pos, direction) > Mathf.Epsilon;
+    }
+
     public static bool IsPositionValid(this Vector2Int pos)
         => pos.x is >= 0 and < IcwGame.SizeX && pos.y is >= 0 and < IcwGame.SizeY;
 
