@@ -64,16 +64,6 @@ public class Field : MonoBehaviour
         _field[x * IcwGame.SizeY + y].TileType = tileType;
     }
 
-    /*public static bool IsPositionValid(float x, float y)
-        => IsPositionValid(Mathf.RoundToInt(x), Mathf.RoundToInt(y)); 
-    
-    public static bool IsPositionValid(int x, int y)
-        => x is >= 0 and < IcwGame.SizeX && y is >= 0 and < IcwGame.SizeY;
-    
-    public static bool IsPositionValid(Vector2Int pos)
-        => IsPositionValid(pos.x, pos.y);
-*/
-    
     private GameObject GetTileByType(TileType tileType)
         => tileType switch
         {
@@ -179,6 +169,14 @@ public class Field : MonoBehaviour
     public bool HasTraceTiles()
         => _field.Any(f => f.TileType == TileType.Trace);
 
+    public void ClearTraceTiles()
+    {
+        for (var i = 0; i < IcwGame.SizeX; i++)
+            for (var j = 0; j < IcwGame.SizeY; j++)
+                if (_field[i * IcwGame.SizeY + j].TileType == TileType.Trace)
+                    PutTile(TileType.Empty, i, j);
+    }
+    
     public int GetFillPercents()
     {
         var total = (IcwGame.SizeX - 4) * (IcwGame.SizeY - 4);

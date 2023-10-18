@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private readonly Vector3 _startPosition = new (Mathf.Round(IcwGame.SizeX / 2.0f), 1, 0);
+    private readonly Vector3 _startPosition = new (Mathf.Round(IcwGame.SizeX / 2.0f), 0, 0);
 
     private Vector3 _lastGroundPosition = Vector3.zero;
     private bool _playerIsKilled = false;
