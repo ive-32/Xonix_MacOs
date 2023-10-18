@@ -132,8 +132,8 @@ public class Game : MonoBehaviour
         for (var i = 0; i < _enemies.transform.childCount; i++)
         {
             var enemy = _enemies.transform.GetChild(i).GetComponent<BaseEnemy>();
-            if (enemy is SlitherEnemy)
-                player.slitherEnemies.Add(enemy as SlitherEnemy);
+            if (enemy is SlitherEnemy or GrounderEnemy)
+                player.slitherEnemies.Add(enemy);
         }
         _field.Enemies.SetPlayer(_playerObject);
     }

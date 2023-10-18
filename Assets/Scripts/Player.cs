@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
     [NonSerialized] public Field Field;
     [NonSerialized] public TileType TraceTile = TileType.Trace;
     [NonSerialized] public Bonuses Bonuses;
-    [NonSerialized] public List<SlitherEnemy> slitherEnemies = new List<SlitherEnemy>();
+    [NonSerialized] public List<BaseEnemy> slitherEnemies = new List<BaseEnemy>();
 
     private AnimationClip _playerAppear;
     private AnimationClip _playerDisappear;

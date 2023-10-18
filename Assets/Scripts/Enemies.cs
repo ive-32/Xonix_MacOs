@@ -49,6 +49,7 @@ public class Enemies : MonoBehaviour
             EnemyType.Destroyer => enemiesPrefabs[1],
             EnemyType.SuperDestroyer => enemiesPrefabs[2],
             EnemyType.Slither => enemiesPrefabs[3],
+            EnemyType.Grounder => enemiesPrefabs[4],
             _ => enemiesPrefabs[0]
         };
 

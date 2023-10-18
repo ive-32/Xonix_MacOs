@@ -46,27 +46,24 @@ public class BaseEnemy : MonoBehaviour
             Mathf.RoundToInt(pos.x + Mathf.Clamp(Direction.x * 100, -0.5f, 0.5f)),
             Mathf.RoundToInt(pos.y));
 
-        var tile = Field.GetTile(tilePos);
+        var tile = Field.GetTileWithValidation(tilePos);
 
-        if (tile.TileType != TileType.Empty)
-        {
-            if (tileTypes.Contains(tile.TileType))
-                reflectionNormalVector += new Vector3(Direction.x, 0, 0);
+        if (tile == null || tileTypes.Contains(tile.TileType))
+            reflectionNormalVector += new Vector3(Direction.x, 0, 0);
+        
+        if (tile != null) 
             collidedTiles.Add(tile);
-        }
         
         tilePos = new Vector2Int(
             Mathf.RoundToInt(pos.x), 
             Mathf.RoundToInt(pos.y + Mathf.Clamp(Direction.y * 100, -0.5f, 0.5f)));
 
-        tile = Field.GetTile(tilePos);
+        tile = Field.GetTileWithValidation(tilePos);
 
-        if (tile.TileType != TileType.Empty)
-        {
-            if (tileTypes.Contains(tile.TileType))
-                reflectionNormalVector += new Vector3(0, Direction.y, 0);
+        if (tile == null || tileTypes.Contains(tile.TileType))
+            reflectionNormalVector += new Vector3(0, Direction.y, 0);
+        if (tile != null) 
             collidedTiles.Add(tile);
-        }
 
         return (reflectionNormalVector, collidedTiles);
     }

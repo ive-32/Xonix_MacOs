@@ -43,6 +43,9 @@ public class Field : MonoBehaviour
 
     public FieldTile GetTile(Vector2Int pos)
         => _field[pos.x * IcwGame.SizeY + pos.y];
+
+    public FieldTile GetTileWithValidation(Vector2Int pos)
+        => pos.IsPositionValid() ? _field[pos.x * IcwGame.SizeY + pos.y] : null;
     
     public void PutTile(TileType tileType, Vector2Int pos)
         => PutTile(tileType, pos.x, pos.y);

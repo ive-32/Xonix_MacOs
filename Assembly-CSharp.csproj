@@ -60,6 +60,7 @@
      <Compile Include="Assets/Scripts/Enums/BonusType.cs" />
      <Compile Include="Assets/Scripts/Tools/Tools.cs" />
      <Compile Include="Assets/Scripts/Game.cs" />
+     <Compile Include="Assets/Scripts/Enemies/GrounderEnemy.cs" />
      <Compile Include="Assets/Scripts/Bonuses/Bonuses.cs" />
      <Compile Include="Assets/Scripts/Enums/GameState.cs" />
      <Compile Include="Assets/Scripts/Player.cs" />
