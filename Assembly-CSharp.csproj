@@ -74,6 +74,7 @@
      <Compile Include="Assets/Scripts/Enemies/SuperDestroyerEnemy.cs" />
      <Compile Include="Assets/Scripts/Bonuses/BorderShieldBonus.cs" />
      <Compile Include="Assets/Scripts/Bonuses/IBonus.cs" />
+     <Compile Include="Assets/Scripts/Bonuses/ProgressCircle.cs" />
      <Compile Include="Assets/Scripts/UI/UiSplashLabel.cs" />
      <Compile Include="Assets/Scripts/Enemies.cs" />
      <Compile Include="Assets/Scripts/Enums/TileType.cs" />

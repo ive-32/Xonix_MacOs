@@ -107,6 +107,7 @@ public class Game : MonoBehaviour
         
         _enemies.Field = _field;
         _bonuses.SplashTextPrefab = uISplashTextPrefab;
+        _bonuses.Field = _field;
         
         _scoresLabel = Instantiate(uILabelPrefab, new Vector3(3, IcwGame.SizeY, 0), Quaternion.identity, transform);
         _livesLabel = Instantiate(uILabelPrefab, new Vector3(13, IcwGame.SizeY, 0), Quaternion.identity, transform);

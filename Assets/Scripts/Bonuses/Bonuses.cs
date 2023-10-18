@@ -10,7 +10,10 @@ public class Bonuses : MonoBehaviour
     [FormerlySerializedAs("bonusesPrefabsList")] 
     public List<GameObject> BonusesPrefabs = new();
 
+    [FormerlySerializedAs("Progress")] public GameObject progressPrefab;
+
     [NonSerialized] public GameObject SplashTextPrefab;
+    [NonSerialized] public Field Field;
     
     private float _timeToNextBonus = 1.0f;
     
@@ -37,9 +40,24 @@ public class Bonuses : MonoBehaviour
             if (newBonusType is BonusType.BorderShield or BonusType.FieldShield && 
                 bonuses.Any(b => b.BonusType is BonusType.BorderShield or BonusType.FieldShield))
                 return;
-                
+
+            var attempts = 5;
+            var position = Vector2Int.zero;
+            do
+            {
+                position.x = Random.Range(2, IcwGame.SizeX - 1);
+                position.y = Random.Range(2, IcwGame.SizeY - 1);
+                attempts--;
+            } while (Field.GetTileType(position).IsGround() &&  attempts > 0);
+            
+            if (attempts == 0) return;
+            
             var bonus = Instantiate(BonusesPrefabs[bonusPrefabIndex], transform);
-            bonus.GetComponent<IBonus>().SplashTextPrefab = SplashTextPrefab;
+            bonus.transform.localPosition = position.ToVector3();
+            
+            var bonusClass = bonus.GetComponent<IBonus>(); 
+            bonusClass.SplashTextPrefab = SplashTextPrefab;
+            bonusClass.ProgressPrefab = progressPrefab;
         }
     }
 
@@ -55,7 +73,7 @@ public class Bonuses : MonoBehaviour
         return null;
     }
 
-    private void SetTimeToNextBonus() => _timeToNextBonus = 4.0f; //Random.Range(3.0f, 3.0f);
+    private void SetTimeToNextBonus() => _timeToNextBonus = Random.Range(3.0f, 10.0f);
 
     private static BonusType MapToBonusType(int index) => index switch
         {

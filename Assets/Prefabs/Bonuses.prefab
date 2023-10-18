@@ -48,3 +48,4 @@ MonoBehaviour:
   - {fileID: 3065926544299617861, guid: 52294d24669d744bebb32dfe7fc0ec86, type: 3}
   - {fileID: 3065926544299617861, guid: 67c7b1971d43a4aa1bb3f30a7cc3680d, type: 3}
   - {fileID: 3065926544299617861, guid: 6aef05b5b8db44ec6a54657f366148aa, type: 3}
+  progressPrefab: {fileID: 1913256909294217035, guid: 788278535150f41ef80bd67c4a0ea8e8, type: 3}
