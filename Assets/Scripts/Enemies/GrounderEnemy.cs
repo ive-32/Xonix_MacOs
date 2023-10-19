@@ -15,22 +15,34 @@ public class GrounderEnemy : BaseEnemy
                 availableTiles.Add(new Vector2Int(i, j));
         }
 
-        var startPosititon = availableTiles[Random.Range(0, availableTiles.Count)].ToVector3();
+        var startPosition = availableTiles[Random.Range(0, availableTiles.Count)];
 
-        transform.position = startPosititon;
+        transform.position = startPosition.ToVector3();
         EnemySpeed = 1;
+        
+        Direction = GetDirection();
     }
     
     protected new void Update()
     {
-        var (reflectionNormalVector, _) = GetCollision(transform.position,
-            new[] { TileType.Empty });
-        
+        var (reflectionNormalVector, _) = GetCollision(transform.position, new[] { TileType.Empty });
+
         if (reflectionNormalVector.magnitude > 0)
             Direction = Vector3.Reflect(Direction, reflectionNormalVector.normalized).normalized;
-
-        transform.SetPositionAndRotation(transform.position + Direction * (EnemySpeed * IcwGame.GameSpeed * Time.deltaTime), 
-                Quaternion.identity);
+        
+        transform.SetPositionAndRotation(transform.position + Direction 
+            * (EnemySpeed * IcwGame.GameSpeed * Time.deltaTime), 
+            Quaternion.identity);
     }
+
+    private static Vector3 GetDirection()
+        => Random.Range(0, 4) switch
+            {
+                0 => new Vector3(1, 1, 0),
+                1 => new Vector3(1, -1, 0),
+                2 => new Vector3(-1, 1, 0),
+                3 => new Vector3(-1, -1, 0),
+                _ => Vector3.zero
+            };
     
 }
