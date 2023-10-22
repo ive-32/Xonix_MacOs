@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - TraceTag
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -40,4 +42,19 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Field
+    uniqueID: 2186652165
+    locked: 0
+  - name: Bonuses
+    uniqueID: 2468630507
+    locked: 0
+  - name: Player
+    uniqueID: 247349195
+    locked: 0
+  - name: Enemies
+    uniqueID: 3515620821
+    locked: 0
+  - name: UIObjects
+    uniqueID: 1239650409
     locked: 0

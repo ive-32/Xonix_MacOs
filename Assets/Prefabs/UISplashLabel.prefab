@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2106210737495253071}
   - component: {fileID: 4627975308221437585}
   - component: {fileID: 1746448470844242993}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 8406748791493963263}
   - component: {fileID: 8577827514148484938}
   - component: {fileID: 7478187322995416173}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -193,7 +193,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
+  m_SortingLayerID: 1239650409
   m_SortingOrder: 2
   m_TargetDisplay: 0
 --- !u!114 &8577827514148484938
@@ -306,8 +306,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1239650409
+  m_SortingLayer: 5
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 8b450bc1ba5df477fb392f3b46be1df9, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
