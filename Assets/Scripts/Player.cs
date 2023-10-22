@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
     [NonSerialized] public Field Field;
     [NonSerialized] public TileType TraceTile = TileType.Trace;
     [NonSerialized] public Bonuses Bonuses;
-    [NonSerialized] public List<ClimberEnemy> ContactEnemies = new List<ClimberEnemy>();
+    [NonSerialized] public List<BaseEnemy> ContactEnemies = new List<BaseEnemy>();
 
     private AnimationClip _playerAppear;
     private AnimationClip _playerDisappear;

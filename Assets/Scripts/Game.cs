@@ -133,7 +133,7 @@ public class Game : MonoBehaviour
         {
             var enemy = _enemies.transform.GetChild(i).GetComponent<BaseEnemy>();
             if (enemy is ClimberEnemy or GrounderEnemy)
-                player.ContactEnemies.Add(enemy as ClimberEnemy);
+                player.ContactEnemies.Add(enemy as BaseEnemy);
         }
         _field.Enemies.SetPlayer(_playerObject);
     }
