@@ -28,6 +28,7 @@ public class Enemies : MonoBehaviour
             AddEnemy(EnemyType.SuperDestroyer);
             AddEnemy(EnemyType.Climber);
             AddEnemy(EnemyType.Climber);
+            AddEnemy(EnemyType.Grounder);
         }
     }
 
