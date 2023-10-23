@@ -51,6 +51,7 @@
      <Compile Include="Assets/Scripts/Bonuses/SpeedUpBonus.cs" />
      <Compile Include="Assets/Scripts/MainCamera.cs" />
      <Compile Include="Assets/Scripts/UI/UiLabel.cs" />
+     <Compile Include="Assets/Scripts/Enemies/SlitherEnemy.cs" />
      <Compile Include="Assets/Scripts/Extensions/AttributeExtensions.cs" />
      <Compile Include="Assets/Scripts/Field/TraceTile.cs" />
      <Compile Include="Assets/Scripts/Bonuses/BaseBonus.cs" />

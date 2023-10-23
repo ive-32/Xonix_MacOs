@@ -2,18 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using Random = UnityEngine.Random;
 
 public class ClimberEnemy : BaseEnemy
 {
-    private Vector2Int _currentTile;
-    protected Vector2Int _direction;
+    private const float EnemySize = 0.5f;
+    private const float RotationSpeed = 360 / (Mathf.PI * EnemySize);
+    private Vector3 _direction;
     [NonSerialized] public RotationType RotationType = RotationType.RotationLeft;
     
     protected override void Start()
     {
         base.Start();
-        var availablePositions = new List<Vector2Int>(200);
+        var availablePositions = new List<(Vector3 pos, Vector3 dir)>(200);
         
         for (var i = 0; i < IcwGame.SizeX; i++)
         for (var j = 0; j < IcwGame.SizeY; j++)
@@ -25,7 +27,12 @@ public class ClimberEnemy : BaseEnemy
             {
                 var position = new Vector2Int(i + neighbour.x, j + neighbour.y);
                 if (position.IsPositionValid() && Field.GetTileType(position) == TileType.Empty)
-                    availablePositions.Add(position);
+                {
+                    
+                    availablePositions.Add(
+                        (new Vector3(i, j, 0) + neighbour.ToVector3() * (0.5f + EnemySize), 
+                            GetPositiveRotation(neighbour).ToVector3()));
+                }
             }
         }
 
@@ -33,88 +40,77 @@ public class ClimberEnemy : BaseEnemy
             Destroy(this.gameObject);
         
         var index = Random.Range(0, availablePositions.Count);
-        transform.localPosition = new Vector3(availablePositions[index].x, availablePositions[index].y, 0);
-        _currentTile = availablePositions[index];
-        GetDirection();
+        transform.localPosition = availablePositions[index].pos;
+        _direction = availablePositions[index].dir;
         EnemySpeed = 1.0f;
     }
-    
-    protected override void Update()
+
+    protected new void Update()
     {
+        var step = Time.deltaTime * EnemySpeed * IcwGame.GameSpeed;
+        
         var currentPosition = transform.position;
-        var frameWholeStep = Time.deltaTime * IcwGame.GameSpeed * EnemySpeed;
-        const float atomicStep = 0.5f;
         do
         {
-            var currentStep = frameWholeStep > atomicStep ? atomicStep : frameWholeStep;
+            var currentStep = step > EnemySize ? EnemySize : step;
 
-            frameWholeStep -= currentStep;
+            _direction = GetClimbDirection(currentPosition, _direction);
+            var glueDirection = GetPositiveRotation(_direction);
+            var neighbourTile = (currentPosition + glueDirection).GetCenterTile();
+            if (glueDirection.x != 0)
+                currentPosition.x = neighbourTile.x - glueDirection.x * (0.5f + EnemySize * 0.5f);
+            if (glueDirection.y != 0)
+                currentPosition.y = neighbourTile.y - glueDirection.y * (0.5f + EnemySize * 0.5f);
+                
+            currentPosition += _direction * currentStep;
+            
+            step -= currentStep;
+        } while (step > 0);
 
-            var targetTile = _currentTile + _direction;
-            if (currentPosition.ReachCenterTile(targetTile, _direction)) 
-            {
-                _currentTile = currentPosition.GetCenterTile2Int();
-
-                var oldDirection = _direction;
-                if (_direction == Vector2Int.zero)
-                    GetDirection();
-
-                var neighbourTileType = Field.GetTileType(_currentTile + GetPositiveRotation(_direction));
-                var counter = 0;
-
-                while (!neighbourTileType.IsGround() && counter < 5)
-                {
-                    _direction = GetPositiveRotation(_direction);
-                    
-                    neighbourTileType = Field.GetTileType(_currentTile + _direction + GetPositiveRotation(_direction));
-                    counter++;
-                }
-
-                if (counter == 5)
-                    _direction = Vector2Int.zero;
-
-                counter = 0;
-                var targetTileType = Field.GetTileType(_currentTile + _direction);
-                while (targetTileType.IsGround() && counter < 5)
-                {
-                    _direction = GetNegativeRotation(_direction);
-                    
-                    targetTileType = Field.GetTileType(_currentTile + _direction);
-                    counter++;
-                }
-
-                if (counter == 5)
-                    _direction = Vector2Int.zero;
-
-                if (oldDirection != _direction)
-                    currentPosition = _currentTile.ToVector3();
-
-                if (Field.GetTileType(_currentTile) == TileType.Trace)
-                    Field.HitTraceTile(_currentTile);
-            }
-
-            currentPosition += _direction.ToVector3() * currentStep;
-        } while (frameWholeStep > atomicStep);
-        
         transform.SetPositionAndRotation(currentPosition,
-            transform.rotation * Quaternion.AngleAxis(360 * Time.deltaTime * IcwGame.GameSpeed / IcwGame.DefaultGameSpeed, 
+            transform.rotation * Quaternion.AngleAxis(RotationSpeed * Time.deltaTime * EnemySpeed * IcwGame.GameSpeed, 
                 RotationType == RotationType.RotationLeft 
                     ? Vector3.forward
                     : Vector3.back));
     }
-    
-    private void GetDirection()
-    {
-        _direction = Vector2Int.right;
-        
-        foreach (var neighbour in Neghbours.Vector2INT)
-        {
-            var neighbourTile = _currentTile + neighbour;
-            if (!neighbourTile.IsPositionValid() || !Field.GetTileType(neighbourTile).IsGround()) continue;
 
-            _direction = GetPositiveRotation(_currentTile - neighbourTile);
-            break;
+    private Vector3 GetClimbDirection(Vector3 position, Vector3 direction)
+    {
+        var neighbourTile = (position - direction * (EnemySize * 0.495f) + GetPositiveRotation(direction)).GetCenterTile2Int();
+        var neighbourTile2 = (position + direction * (EnemySize * 0.505f) + GetPositiveRotation(direction)).GetCenterTile2Int();
+        var counter = 0;
+
+        while (neighbourTile.IsPositionValid() 
+               && !Field.GetTileType(neighbourTile).IsGround() 
+               && neighbourTile2.IsPositionValid() 
+               && !Field.GetTileType(neighbourTile2).IsGround()
+               && counter < 5)
+        {
+            direction = GetPositiveRotation(direction);
+            
+            neighbourTile = (position - direction * (EnemySize * 0.495f) + GetPositiveRotation(direction)).GetCenterTile2Int();
+            neighbourTile2 = (position + direction * (EnemySize * 0.505f) + GetPositiveRotation(direction)).GetCenterTile2Int();
+            counter++;
         }
+        
+        if (counter == 5)
+            direction = Vector3.zero;
+        
+        counter = 0;
+        
+        var targetTile = position + direction * (EnemySize * 0.505f);
+        while ((!targetTile.IsPositionValid() || Field.GetTileType(targetTile).IsGround()) && counter < 5)
+        {
+            direction = GetNegativeRotation(direction);
+                    
+            targetTile = position + direction * (EnemySize * 0.505f);
+            counter++;
+        }
+        
+        if (counter == 5)
+            direction = Vector3.zero;
+
+        return direction;
     }
     
     protected Vector2Int GetPositiveRotation(Vector2Int direction)
@@ -123,6 +119,17 @@ public class ClimberEnemy : BaseEnemy
             : direction.RotateToRight();
 
     protected Vector2Int GetNegativeRotation(Vector2Int direction)
+        => RotationType == RotationType.RotationLeft 
+            ? direction.RotateToRight()
+            : direction.RotateToLeft();
+
+    
+    private Vector3 GetPositiveRotation(Vector3 direction)
+        => RotationType == RotationType.RotationLeft 
+            ? direction.RotateToLeft()
+            : direction.RotateToRight();
+
+    private Vector3 GetNegativeRotation(Vector3 direction)
         => RotationType == RotationType.RotationLeft 
             ? direction.RotateToRight()
             : direction.RotateToLeft();
