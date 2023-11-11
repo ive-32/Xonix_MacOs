@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SlitherEnemy : ClimberEnemy
 {
@@ -13,14 +14,16 @@ public class SlitherEnemy : ClimberEnemy
     
     
     private Transform slitherBody;
+    private const float DefaultJerkDuration = 0.9f;
+    private const float DefaultEnemySpeed = 0.3f;
+    private const float DefaultJerkSpeed = 4.0f;
 
     private GameObject _body;
     private GameObject _podForward;
     private GameObject _podBackward;
-    private Vector3 _bodyPosition;
-    private Vector3 _previousPosition;
+    private float _jerkDuration = 0;
     private bool _movingBody;
-    private const float _podLegth = 0.5f;
+    private const float PodLength = EnemySize;
     private int _mainAngle;
     private Vector3 _forwardPodPosition;
     private Vector3 _backwardPodPosition;
@@ -30,7 +33,7 @@ public class SlitherEnemy : ClimberEnemy
     protected override void Start()
     {
         base.Start();
-        EnemySpeed = 0.5f;
+        EnemySpeed = DefaultEnemySpeed;
         _body = transform.Find("Body")?.gameObject;
 
         _podForward = transform.Find("PseudoPod_Forward")?.gameObject;
@@ -41,73 +44,74 @@ public class SlitherEnemy : ClimberEnemy
             var pod = transform.GetChild(i);
             if (pod.name == "PseudoPod")
             {
-                //var direction = Random.insideUnitCircle.normalized;
-                //var direction = Quaternion.AngleAxis(180.0f / (transform.childCount - 3) + 225, Vector3.forward) * Vector3.left;
                 var direction = transform.rotation * Vector3.left;
                 _pods.Add(new Pod()
                 {
                     PodObject = pod.gameObject,
                     Direction = direction, 
                     Speed = Random.Range(0.1f, 0.3f),
-                    Posititon = direction * _podLegth
+                    Posititon = direction * PodLength
                 });
                 
             }
         }
 
-        _bodyPosition = Vector3.zero;
-        _forwardPodPosition = _bodyPosition + new Vector3(-_podLegth, 0, 0);
-        _backwardPodPosition = _bodyPosition + new Vector3(_podLegth, 0, 0);
-        _previousPosition = transform.position;
+        //_forwardPodPosition = _bodyPosition + new Vector3(-PodLength, 0, 0);
+        //_backwardPodPosition = _bodyPosition + new Vector3(PodLength, 0, 0);
     } 
     
-    /*protected override void Update()
+    protected new void Update()
     {
-        base.Update();
-        var glueTo = GetPositiveRotation(_direction);
-        _mainAngle = GetAngleFromDirection(glueTo);
-        transform.rotation = Quaternion.AngleAxis(_mainAngle, Vector3.forward);
-        UpdateBody();
-    }*/
-
-    private void UpdateBody()
-    {
-        var globalPos = transform.position;
-        var step = (globalPos - _previousPosition).magnitude;
-
-        if (step > _podLegth)
+        var position = Climb(Time.deltaTime);
+        if (_jerkDuration == 0 && Random.Range(1, 100) < 2)
         {
-            _movingBody = !_movingBody;
-            _previousPosition = globalPos;
+            EnemySpeed = DefaultEnemySpeed * DefaultJerkSpeed;
+            _jerkDuration = DefaultJerkDuration;
         }
 
-        if (_movingBody)
-        {
-            var bodyStep = new Vector3(-1, 0, 0) * (Time.deltaTime * EnemySpeed * 5);
-            _bodyPosition += bodyStep;
-            _forwardPodPosition -= bodyStep;
-        }
-        else
-        {
-            _forwardPodPosition = new Vector3(-_podLegth, 0, 0);
-            _bodyPosition = new Vector3(step, -0.3f, 0);
-            _backwardPodPosition = _bodyPosition + new Vector3(_podLegth, 0, 0);
-        }
+        if (_jerkDuration > 0)
+            Jerk();
+
+        if (_jerkDuration < 0)
+            _jerkDuration += Time.deltaTime > -_jerkDuration ? Time.deltaTime : -_jerkDuration;
         
-        _body.transform.localPosition = _bodyPosition;
-        _podForward.transform.localPosition = _bodyPosition;
+        /*_jerkDuration -= Time.deltaTime;
+        EnemySpeed -= (DefaultEnemySpeed * DefaultJerkSpeed * 0.9f / DefaultJerkDuration) * Time.deltaTime;
+        if (_jerkDuration <= 0)
+        {
+            EnemySpeed = DefaultEnemySpeed * DefaultJerkSpeed;
+            _jerkDuration = DefaultJerkDuration;
+        }*/
+        transform.position = position;
+    }
+
+    private void Jerk()
+    {
+        _jerkDuration -= Time.deltaTime;
+        EnemySpeed -= (DefaultEnemySpeed * DefaultJerkSpeed * 0.9f / DefaultJerkDuration) * Time.deltaTime;
+        if (_jerkDuration <= 0)
+        {
+            EnemySpeed = DefaultEnemySpeed;
+            _jerkDuration = -10;
+        }
+    }
+    
+    private void UpdateBody(Vector3 position, float deltaTime)
+    {
+       
+        /*_podForward.transform.localPosition = _bodyPosition;
         _podBackward.transform.localPosition = _bodyPosition;
-        _podForward.transform.localScale = new Vector3((_bodyPosition - _forwardPodPosition).magnitude / _podLegth, 1, 1);
-        _podBackward.transform.localScale = new Vector3((_bodyPosition - _backwardPodPosition).magnitude / _podLegth, 1, 1);
+        _podForward.transform.localScale = new Vector3((_bodyPosition - _forwardPodPosition).magnitude / PodLength, 1, 1);
+        _podBackward.transform.localScale = new Vector3((_bodyPosition - _backwardPodPosition).magnitude / PodLength, 1, 1);
         
         foreach (var pod in _pods)
         {
             pod.PodObject.transform.localPosition = _bodyPosition;
             var podLenght = pod.Posititon.magnitude; 
-            if (podLenght > _podLegth * 1.5f)
+            if (podLenght > PodLength * 1.5f)
                 pod.Direction = -pod.Direction;
 
-            if (podLenght < _podLegth * 0.5f)
+            if (podLenght < PodLength * 0.5f)
             {
                 pod.Direction = -pod.Direction;
                 pod.Speed = Random.Range(0.3f, 1f);
@@ -115,17 +119,17 @@ public class SlitherEnemy : ClimberEnemy
 
             pod.Posititon += pod.Direction * (pod.Speed * Time.deltaTime);
 
-            pod.PodObject.transform.localScale = new Vector3(podLenght / _podLegth, 1, 1);
-        }
-        
+            pod.PodObject.transform.localScale = new Vector3(podLenght / PodLength, 1, 1);
+        }*/
+
     }
     
-    private static int GetAngleFromDirection(Vector2Int direction)
+    private static int GetAngleFromDirection(Vector3 direction)
     {
-        if (direction == Vector2Int.left) return 270;
-        if (direction == Vector2Int.up) return 180;
-        if (direction == Vector2Int.right) return 90;
-        if (direction == Vector2Int.down) return 0;
+        if (direction == Vector3.left) return 270;
+        if (direction == Vector3.up) return 180;
+        if (direction == Vector3.right) return 90;
+        if (direction == Vector3.down) return 0;
         
         return 0;
     }

@@ -7,9 +7,8 @@ using Random = UnityEngine.Random;
 
 public class ClimberEnemy : BaseEnemy
 {
-    private const float EnemySize = 0.5f;
+    protected const float EnemySize = 0.5f;
     private const float RotationSpeed = 360 / (Mathf.PI * EnemySize);
-    private Vector3 _direction;
     [NonSerialized] public RotationType RotationType = RotationType.RotationLeft;
     
     protected override void Start()
@@ -41,32 +40,14 @@ public class ClimberEnemy : BaseEnemy
         
         var index = Random.Range(0, availablePositions.Count);
         transform.localPosition = availablePositions[index].pos;
-        _direction = availablePositions[index].dir;
+        Direction = availablePositions[index].dir;
         EnemySpeed = 1.0f;
     }
 
-    protected new void Update()
+    protected new virtual void Update()
     {
-        var step = Time.deltaTime * EnemySpeed * IcwGame.GameSpeed;
+        var currentPosition = Climb(Time.deltaTime);
         
-        var currentPosition = transform.position;
-        do
-        {
-            var currentStep = step > EnemySize ? EnemySize : step;
-
-            _direction = GetClimbDirection(currentPosition, _direction);
-            var glueDirection = GetPositiveRotation(_direction);
-            var neighbourTile = (currentPosition + glueDirection).GetCenterTile();
-            if (glueDirection.x != 0)
-                currentPosition.x = neighbourTile.x - glueDirection.x * (0.5f + EnemySize * 0.5f);
-            if (glueDirection.y != 0)
-                currentPosition.y = neighbourTile.y - glueDirection.y * (0.5f + EnemySize * 0.5f);
-                
-            currentPosition += _direction * currentStep;
-            
-            step -= currentStep;
-        } while (step > 0);
-
         transform.SetPositionAndRotation(currentPosition,
             transform.rotation * Quaternion.AngleAxis(RotationSpeed * Time.deltaTime * EnemySpeed * IcwGame.GameSpeed, 
                 RotationType == RotationType.RotationLeft 
@@ -74,7 +55,38 @@ public class ClimberEnemy : BaseEnemy
                     : Vector3.back));
     }
 
-    private Vector3 GetClimbDirection(Vector3 position, Vector3 direction)
+    protected Vector3 Climb(float deltaTime)
+    {
+        var step = deltaTime * EnemySpeed * IcwGame.GameSpeed;
+        
+        var currentPosition = transform.position;
+        do
+        {
+            var currentStep = step > EnemySize ? EnemySize : step;
+
+            Direction = GetClimbDirection(currentPosition, Direction);
+
+            currentPosition = Glue(currentPosition);
+            currentPosition += Direction * currentStep;
+            
+            step -= currentStep;
+        } while (step > 0);
+
+        return currentPosition;
+    }
+
+    protected Vector3 Glue(Vector3 currentPosition)
+    {
+        var glueDirection = GetPositiveRotation(Direction);
+        var neighbourTile = (currentPosition + glueDirection).GetCenterTile();
+        if (glueDirection.x != 0)
+            currentPosition.x = neighbourTile.x - glueDirection.x * (0.5f + EnemySize * 0.5f);
+        if (glueDirection.y != 0)
+            currentPosition.y = neighbourTile.y - glueDirection.y * (0.5f + EnemySize * 0.5f);
+
+        return currentPosition;
+    }
+    protected Vector3 GetClimbDirection(Vector3 position, Vector3 direction)
     {
         var neighbourTile = (position - direction * (EnemySize * 0.495f) + GetPositiveRotation(direction)).GetCenterTile2Int();
         var neighbourTile2 = (position + direction * (EnemySize * 0.505f) + GetPositiveRotation(direction)).GetCenterTile2Int();
@@ -124,12 +136,12 @@ public class ClimberEnemy : BaseEnemy
             : direction.RotateToLeft();
 
     
-    private Vector3 GetPositiveRotation(Vector3 direction)
+    protected Vector3 GetPositiveRotation(Vector3 direction)
         => RotationType == RotationType.RotationLeft 
             ? direction.RotateToLeft()
             : direction.RotateToRight();
 
-    private Vector3 GetNegativeRotation(Vector3 direction)
+    protected  Vector3 GetNegativeRotation(Vector3 direction)
         => RotationType == RotationType.RotationLeft 
             ? direction.RotateToRight()
             : direction.RotateToLeft();
