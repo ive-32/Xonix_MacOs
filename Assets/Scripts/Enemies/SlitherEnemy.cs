@@ -16,12 +16,12 @@ public class SlitherEnemy : ClimberEnemy
     private Transform slitherBody;
     private const float DefaultJerkDuration = 0.9f;
     private const float DefaultEnemySpeed = 0.3f;
-    private const float DefaultJerkSpeed = 4.0f;
+    private const float DefaultJerkSpeed = 1.5f;
 
     private GameObject _body;
     private GameObject _podForward;
     private GameObject _podBackward;
-    private float _jerkDuration = 0;
+    private float _jerkDuration;
     private bool _movingBody;
     private const float PodLength = EnemySize;
     private int _mainAngle;
@@ -63,18 +63,26 @@ public class SlitherEnemy : ClimberEnemy
     protected new void Update()
     {
         var position = Climb(Time.deltaTime);
-        if (_jerkDuration == 0 && Random.Range(1, 100) < 2)
+        if (_jerkDuration <= 0 && IsStraightClimb(this.transform.position, 3))
         {
-            EnemySpeed = DefaultEnemySpeed * DefaultJerkSpeed;
+            /*if (EnemySpeed < DefaultJerkSpeed * 0.7f)
+            {
+                EnemySpeed += DefaultJerkSpeed * 0.3f;
+                _jerkDuration = DefaultJerkDuration / 4;
+            }
+            else
+            {
+                EnemySpeed = DefaultEnemySpeed * DefaultJerkSpeed;
+                _jerkDuration = DefaultJerkDuration;
+                
+            }*/
+            EnemySpeed = DefaultJerkSpeed;
             _jerkDuration = DefaultJerkDuration;
         }
-
+        
         if (_jerkDuration > 0)
             Jerk();
 
-        if (_jerkDuration < 0)
-            _jerkDuration += Time.deltaTime > -_jerkDuration ? Time.deltaTime : -_jerkDuration;
-        
         /*_jerkDuration -= Time.deltaTime;
         EnemySpeed -= (DefaultEnemySpeed * DefaultJerkSpeed * 0.9f / DefaultJerkDuration) * Time.deltaTime;
         if (_jerkDuration <= 0)
@@ -88,12 +96,9 @@ public class SlitherEnemy : ClimberEnemy
     private void Jerk()
     {
         _jerkDuration -= Time.deltaTime;
-        EnemySpeed -= (DefaultEnemySpeed * DefaultJerkSpeed * 0.9f / DefaultJerkDuration) * Time.deltaTime;
-        if (_jerkDuration <= 0)
-        {
+        EnemySpeed -= (DefaultJerkSpeed * 0.7f / DefaultJerkDuration) * Time.deltaTime;
+        if (_jerkDuration <= 0 && !IsStraightClimb(this.transform.position, 3))
             EnemySpeed = DefaultEnemySpeed;
-            _jerkDuration = -10;
-        }
     }
     
     private void UpdateBody(Vector3 position, float deltaTime)
@@ -133,4 +138,24 @@ public class SlitherEnemy : ClimberEnemy
         
         return 0;
     }
+    
+    /// <summary>
+    /// Check what can climb on Direction without any rotations
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="distance"></param>
+    /// <returns></returns>
+    private bool IsStraightClimb(Vector3 position, int distance)
+    {
+        for (var i = 0; i < distance; i++)
+        {
+            position += Direction;
+            if (Field.GetTileType(position).IsGround() 
+                || !Field.GetTileType(position + GetPositiveRotation(Direction)).IsGround())
+                return false;
+        }
+
+        return true;
+    }
+
 }
